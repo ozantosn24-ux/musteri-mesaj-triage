@@ -50,11 +50,14 @@ _POLITIKA_KONU_ANAHTARLARI: dict[str, tuple[str, ...]] = {
 # Sipariş DURUMU sorulduğunu gösteren kelimeler — bunlardan biri yoksa ya da
 # mesaj durum-dışı bir talep içeriyorsa, sahip olunan siparişte bile otomatik
 # yanıt VERİLMEZ (§A).
-_SIPARIS_DURUM_SOZ = ("nerede", "nerde", "durum", "ne zaman", "gelir", "gelmedi",
-                       "ulasmadi", "ulasir", "kargo", "kargoya",
-                       "where", "status", "when", "arrive", "shipped", "track")
-_SIPARIS_TALEP_SOZ = ("iptal", "adres", "eksik", "degistir", "yanlis urun",
-                       "cancel", "address", "missing", "wrong item")
+_SIPARIS_DURUM_SOZ = ("nerede", "nerde", "durum", "ne zaman", "gelir", "gelmedi", "geldi",
+                       "ulasmadi", "ulasir", "ulasti", "kargo", "kargoya", "teslim", "takip",
+                       "verildi", "gonderildi",
+                       "where", "status", "when", "arrive", "ship", "track", "deliver", "check")
+# Durum sorusu gibi görünse de insan isteyen talep/şikâyet ("takip numaram çalışmıyor").
+_SIPARIS_TALEP_SOZ = ("iptal", "adres", "eksik", "degistir", "yanlis",
+                       "calismiyor", "gorunmuyor", "acilmiyor",
+                       "cancel", "address", "missing", "wrong", "not working")
 
 # Kargo ücreti soruluyor mu? (veride YOK; eklenirse otomatik auto_reply'e döner.)
 _KARGO_UCRET_ANAHTAR = ("ucret", "fee", "cost")

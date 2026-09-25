@@ -145,7 +145,7 @@ Türkçe karakter kullanmayan yazım, emoji, İngilizce, farklı ifadeler, links
 
 İkinci sayı artık görülmüş veri üzerinde, genelleme iddiası değil. Asıl bilgi ilk ölçümde. Bu 20 mesajda hiçbir mesaj
 haksız yere otomatik cevaplanmadı. Ama biri eksik yönlendirildi: cildi soyulan bir müşteri ACİL yerine DÜŞÜK öncelik
-aldı (yine insana gidiyordu, ama acil işaretlenmiyordu). Bir de İngilizce bir mesaja Türkçe cevap üretildi. İki koruma
+aldı (yine insana gidiyordu, ama acil işaretlenmiyordu). Bir de iki İngilizce mesaja Türkçe cevap üretildi. İki koruma
 artık test: ACİL beklenen mesaj ACİL'den düşmez, beklenmeyen mesaj otomatik cevaplanmaz (`tests/test_varyasyon.py`).
 Bu bekçilerin gerçekten kırmızı verebildiği de test ediliyor: sağlık kontrolü kapatılınca ya da her mesaj otomatiğe
 zorlanınca testler düşüyor.
@@ -153,7 +153,7 @@ zorlanınca testler düşüyor.
 Bir etiket sonradan değişti: #118 hem hayvan testini hem "vegan" olup olmadığını soruyor. Veride vegan bilgisi yok, bu
 yüzden doğru davranış insana aktarmak. İlk etiket "otomatik yanıt" diyordu; gerekçesi dosyada `etiket_notu` alanında.
 
-**Bu ölçüm "sistem her mesajda güvenli davranır" demek değil.** İki bağımsız incelemede (aşağıda) uydurulmuş basit
+**Bu ölçüm "sistem her mesajda güvenli davranır" demek değil.** Üç bağımsız incelemede (aşağıda) uydurulmuş basit
 mesajlarla açıklar bulundu ve kapatıldı. Kural tabanlı bir sistemde yeni ifadeler her zaman yeni açık demektir. Bu
 yüzden gerçek kullanımda başlangıçta her taslak insan onayından geçmeli.
 
@@ -203,6 +203,9 @@ testli (istek şekli, şema, reddetme ve hata durumları, güvenlik katmanı), a
   demektir. LLM modu ya da gerçek mesajlardan kural ve örnek zenginleştirmesi gerekir.
 - Sağlık kelimeleri bilerek geniş tutuldu: "sivilce", "alerji", "yan etki var mı?" gibi yalnız soru soran mesajlar da
   ACİL işaretlenir ve taslak kullanımı bırakmayı önerir. Bu yanlış alarmı, gerçek bir reaksiyonu kaçırmaya tercih ettim.
+- Sistem yalnız tanıdığı soruları işaretleyebilir. Bir mesajda tanıdığı bir soruyla birlikte tanımadığı ikinci bir
+  soru varsa ("hangi cilt tipine uygun, gündüz kullanılır mı?"), ikincisi sessizce atlanabilir. Bu yüzden
+  otomatik yanıtlar da başlangıçta insan onayından geçmeli.
 - Konuşma geçmişi yok: her mesaj tek başına değerlendiriliyor. "Tamam, sipariş numaram 45" gibi devam mesajları
   önceki bağlamı bilmiyor.
 - Müşteri kimliği `musteri_id` olarak hazır kabul ediliyor.
@@ -217,10 +220,12 @@ geçirttim; Codex'in itirazları plana girdi (bilinmeyen ile olumsuzun ayrılmas
 sağlık+spam çakışması, HTML kaçışı). Kodun parçalarını alt ajanlara yazdırdım, çıktıları testle ve taslakları tek
 tek okuyarak doğruladım. Varyasyon seti kuralları görmemiş ayrı bir ajan tarafından yazıldı.
 
-Bitmiş kodu iki bağımsız incelemeye verdim (taze bir Claude ajanı ve Codex). İkisi de uydurulmuş mesajlarla açıklar
-buldu. Örneğin sahibi olunan bir sipariş için gelen "iptal etmek istiyorum" mesajı durum cevabıyla otomatik
-yanıtlanıyordu, "Şişli" kelimesi sağlık alarmı veriyordu, "Retinol hamilelikte uygun mu?" sorusuna cilt tipi cevabı
-dönüyordu. Bunlar kapatıldı ve her biri için regresyon testi eklendi.
+Bitmiş kodu üç bağımsız incelemeye verdim: taze bir Claude ajanı, Codex ve son olarak Claude Fable. Hepsi
+uydurulmuş mesajlarla açık aradı. İlk ikisi gerçek açıklar buldu. Örneğin sahibi olunan bir sipariş için gelen
+"iptal etmek istiyorum" mesajı durum cevabıyla otomatik yanıtlanıyordu, "Şişli" kelimesi sağlık alarmı veriyordu,
+"Retinol hamilelikte uygun mu?" sorusuna cilt tipi cevabı dönüyordu. Son incelemede 45 yeni mesajla engelleyici bir
+bulgu çıkmadı. Beş küçük düzeltme yapıldı; örneğin "siparişim geldi mi?" durum sorusu olarak tanınmıyordu. Bulunan
+her açık kapatıldı ve her biri için regresyon testi eklendi.
 
 ## Dosya haritası
 
@@ -239,7 +244,7 @@ triage/
   pipeline.py        hepsini bağlar; güvenlik katmanını her modda uygular
   render.py          onay kuyruğu (rapor.md, panel.html) ve bilgi boşluğu raporu
 data/                mesajlar.json (verilen) + örnek sipariş/ürün/politika verisi
-tests/               175 test (82 test fonksiyonu, bir kısmı parametreli); golden.json, varyasyonlar.json
+tests/               181 test (88 test fonksiyonu, bir kısmı parametreli); golden.json, varyasyonlar.json
 out/                 üretilmiş çıktılar
-docs/                varyasyon setinin ilk ölçümü
+docs/                varyasyon setinin ilk ölçümü, panel görüntüsü
 ```

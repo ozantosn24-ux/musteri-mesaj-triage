@@ -1,6 +1,6 @@
 # Müşteri Mesajı Onay Kuyruğu
 
-_Üretim: 2026-09-25 15:19 · Veriler VARSAYIM etiketlidir (case-brief.md e-postaya eklenmemişti, sipariş/ürün/politika verisi örnek veridir)._
+_Üretim: 2026-09-25 15:38 · Veriler VARSAYIM etiketlidir (case-brief.md e-postaya eklenmemişti, sipariş/ürün/politika verisi örnek veridir)._
 
 ## Özet
 

@@ -137,8 +137,9 @@ def _siparis_durumu(msg: Message, ext: Extraction, kb: KnowledgeBase, dil: str) 
     talep = siparis_durum_disi_talep_kelimesi(folded)
 
     lines: list[str] = []
-    if talep:
+    if talep and owned:
         # Durum-dışı talep (iptal/adres/eksik vb.): sipariş durumu/takip no SIZDIRILMAZ.
+        # Yalnız SAHİP OLUNAN sipariş varsa; aksi hâlde aşağıdaki doğrulama metni tek başına yeter.
         lines.append(_durum_disi_talep_text(dil))
     else:
         bilinen = [o for o in owned if o.get("durum") is not None]

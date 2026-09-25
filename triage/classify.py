@@ -19,6 +19,10 @@ _EN_STOPWORDS = {
     "how", "what", "when", "does", "do", "you", "your", "are", "a", "to", "for", "and", "of", "can", "on",
 }
 _TR_CHARS = set("çğıöşüİı")
+# "gunes" (Güneş Kremi) eşleşmesin diye "gun" yalnız tam kelime ya da gün ekleriyle.
+_TR_ASCII_MARKER = re.compile(
+    r"\b(merhaba|selam|siparis\w*|kargo\w*|nerde|nerede|urun\w*|fiyat\w*|gun|gunu|gundur|gunde)\b"
+)
 
 
 def detect_language(text: str) -> str:
@@ -35,6 +39,10 @@ def detect_language(text: str) -> str:
     if hits >= 3:
         return "en"
     if any(ch in _TR_CHARS for ch in text):
+        return "tr"
+    # Türkçe karaktersiz Türkçede "is" (iş), "on" (10), "a" de geçer; iki İngilizce vuruş
+    # yalnız Türkçe'ye özgü bir işaret kelimesi YOKSA İngilizce sayılır.
+    if _TR_ASCII_MARKER.search(fold(text)):
         return "tr"
     return "en" if hits >= 2 else "tr"
 
@@ -60,7 +68,8 @@ _UNIT_SUFFIX = re.compile(r"^\s*(ml|gr|mg|g|tl|lira|%)\b")
 # "3 gün önce", "2 hafta", "5 days" gibi süre/adet ifadeleri sipariş no değildir.
 _TIME_QTY_SUFFIX = re.compile(r"^\s*(gun\w*|hafta\w*|ay\w*|saat\w*|adet\w*|tane\w*|days?\b|weeks?\b|bottles?\b)")
 # "67 numaralı telefon/hat/oda/kapı" — sipariş değil, başka bir referans numarası.
-_REF_SUFFIX = re.compile(r"^\s*(telefon|hat|oda|kapi)\b")
+# Ekli hâller de ("telefonumdan", "hattan") ama "hatalı" gibi başka kelimeler değil.
+_REF_SUFFIX = re.compile(r"^\s*(telefon\w*|hat\b|hatt\w*|oda\b|odad\w*|kapi\w*)")
 # "3.5" / "3,500" gibi ondalık/basamak ayraçlı sayının tam hâli sipariş no değildir.
 _DECIMAL_SUFFIX = re.compile(r"^[.,]\d")
 
@@ -180,6 +189,10 @@ _SAFETY_PATTERNS: list[re.Pattern[str]] = [re.compile(p) for p in [
     r"\breaction",
     r"\bhives\b",
     r"\bblister",
+    r"\bsting(s|ing)?\b",
+    r"\bredness\b",
+    r"\b(face|skin)\b[^.!?]{0,20}\b(red|peel(ing|ed|s)?|hurts?)\b",
+    r"\bbreak(ing)? ?out\b",
     # "peeling" KASITLI YOK: "Tonik peeling var mı?" bir ürün türüdür, semptom değil
     # (2. hakem bulgusu) — TR karşılığı "soyul" zaten yukarıda ayrı kalıp.
 ]]

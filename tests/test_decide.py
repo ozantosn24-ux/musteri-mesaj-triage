@@ -430,3 +430,41 @@ def test_yalniz_bilinmeyen_politika_sorusunda_diger_nokta_denmez():
     r = _uc(1, "Ürünleriniz dermatolojik olarak test edildi mi?")
     assert r.aksiyon == "human_escalation"
     assert "diğer" not in r.yanit_taslagi
+
+
+# --- son (Fable) inceleme turu karşı örnekleri ---
+
+def test_sahibin_geldi_mi_sorusu_otomatik_cevaplanir():
+    r = _uc(5, "5 numaralı siparişim geldi mi?")
+    assert r.aksiyon == "auto_reply"
+    assert "YK3000000005" in r.yanit_taslagi
+
+
+def test_takip_calismiyor_sikayeti_otomatige_dusmez():
+    r = _uc(5, "Takip numaram çalışmıyor, 5 numaralı siparişim görünmüyor")
+    assert r.aksiyon != "auto_reply"
+
+
+def test_sahibi_olmayan_sipariste_celiskili_taslak_yok():
+    r = _uc(3, "Hello, can you check order #12")
+    assert r.aksiyon == "needs_verification"
+    assert "YK3000000012" not in r.yanit_taslagi
+    assert "request" not in r.yanit_taslagi.lower() or "couldn't find" in r.yanit_taslagi
+
+
+def test_turkce_karaktersiz_turkce_mesaj_ingilizce_sanilmaz():
+    r = _uc(5, "Merhaba, 5 numarali siparisim 3 is gunu icinde gelir dediniz, on gun oldu")
+    assert r.dil == "tr"
+
+
+def test_ingilizce_saglik_sikayeti_acil():
+    for mesaj in ("hi my skin is peeling after using the toner",
+                  "the toner made my face red and it stings"):
+        assert _uc(1, mesaj).oncelik == "P0", mesaj
+
+
+def test_telefon_numarasi_siparis_sanilmaz_ama_hatali_urun_siparisi_kaybolmaz():
+    from triage.classify import extract_order_numbers
+
+    assert extract_order_numbers("05321234567 numaralı telefonumdan arayın") == []
+    assert extract_order_numbers("5 numaralı hatalı ürün geldi") == [5]
