@@ -95,11 +95,12 @@ def test_knowledge_gap_report_counterfactual():
     import json
     from pathlib import Path
 
+    from triage.models import Message
     from triage.pipeline import process_all
 
     kb = KnowledgeBase.load()
     mesajlar = json.loads((Path(__file__).resolve().parent.parent / "data" / "mesajlar.json").read_text(encoding="utf-8"))
-    results = process_all(mesajlar, kb)
+    results = process_all([Message.from_dict(m) for m in mesajlar], kb)
 
     gap = knowledge_gap_report(results, kb)
 
