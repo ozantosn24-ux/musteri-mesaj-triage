@@ -14,6 +14,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from triage.decide import decide
 from triage.knowledge import KnowledgeBase
 from triage.models import (
     Action,
@@ -110,21 +111,6 @@ def knowledge_gap_report(results: list[Result], kb: KnowledgeBase) -> dict:
         for alan in r.eksik_bilgiler:
             eksik_alanlar.setdefault(alan, []).append(r.id)
 
-    try:
-        from triage.decide import decide  # gecikmeli import: bu modül henüz yazılmamış olabilir
-    except ImportError:
-        mevcut_oran = current_auto / total if total else 0.0
-        return {
-            "toplam": total,
-            "mevcut_otomatik": current_auto,
-            "tahmini_otomatik": current_auto,
-            "mevcut_oran": mevcut_oran,
-            "tahmini_oran": mevcut_oran,
-            "eksik_alanlar": eksik_alanlar,
-            "donusecek_mesajlar": [],
-            "etiket": "hesaplanamadı",
-        }
-
     donusecek: list[int] = []
     for r in results:
         if not r.eksik_bilgiler or _val(r.aksiyon) == Action.AUTO_REPLY.value:
@@ -162,7 +148,8 @@ def knowledge_gap_report(results: list[Result], kb: KnowledgeBase) -> dict:
 
 
 def _blockquote(text: str) -> str:
-    lines = text.splitlines() or [""]
+    # Müşteri metni güvenilmez: Markdown içinde de ham HTML olarak yorumlanmasın.
+    lines = html.escape(text, quote=False).splitlines() or [""]
     return "\n".join(f"> {line}" for line in lines)
 
 
@@ -222,6 +209,9 @@ def _build_rapor_md(results: list[Result], gap: dict) -> str:
             else:
                 lines.append("> _yanıt verilmez_")
             lines.append("")
+            if r.eksik_bilgiler:
+                lines.append(f"**Veride eksik (bu yüzden insana gitti):** `{', '.join(r.eksik_bilgiler)}`")
+                lines.append("")
             if r.gerekceler:
                 lines.append("**Gerekçeler**")
                 for g in r.gerekceler:
@@ -369,6 +359,10 @@ def _card_html(r: Result) -> str:
         draft_html = "<em>yanıt verilmez</em>"
     gerekce_items = "".join(f"<li>{_e(g)}</li>" for g in r.gerekceler)
     kaynak_items = "".join(f"<li>{_e(k)}</li>" for k in r.kaynaklar)
+    eksik_html = ""
+    if r.eksik_bilgiler:
+        eksik = ", ".join(_e(x) for x in r.eksik_bilgiler)
+        eksik_html = f'<div class="label">Veride eksik (bu yüzden insana gitti)</div><div class="msg"><code>{eksik}</code></div>'
     details = ""
     if gerekce_items or kaynak_items:
         details = f"<details><summary>Gerekçe ve kaynaklar</summary><ul>{gerekce_items}{kaynak_items}</ul></details>"
@@ -385,6 +379,7 @@ def _card_html(r: Result) -> str:
   <div class="msg">{mesaj_html}</div>
   <div class="label">Taslak yanıt</div>
   <div class="draft">{draft_html}</div>
+  {eksik_html}
   {details}
   <div class="actions">
     <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Onayla</button>

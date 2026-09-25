@@ -8,7 +8,16 @@ from __future__ import annotations
 
 from typing import Callable, Optional
 
-from .decide import asked_product_fields, order_access
+from .decide import (
+    asked_product_fields,
+    hasarli_urun_sorusu,
+    istek_fiyat_listesi,
+    kargo_ucret_soruluyor,
+    order_access,
+    politika_konulari,
+    siparis_durum_disi_talep_kelimesi,
+    tibbi_uygunluk_sorusu,
+)
 from .knowledge import KnowledgeBase
 from .models import Action, Decision, Extraction, Intent, Message
 from .text import fold
@@ -96,12 +105,25 @@ def _order_status_text(order: dict, dil: str) -> str:
 
 
 def _withheld_text(dil: str) -> str:
+    # Bulunamayan VE başkasına ait sipariş için AYNI (detaysız) metin — hangi
+    # sebeple withheld olduğu asla sızmaz.
     if dil == "en":
-        return ("For security reasons we can only share order details with the order owner. "
-                 "Could you confirm the order number and the phone number or e-mail used for it?")
-    return ("Güvenlik nedeniyle sipariş bilgilerini yalnızca sipariş sahibiyle paylaşabiliyoruz. "
-            "Sipariş numarasını ve o siparişte kullanılan telefon/e-posta bilgisini teyit "
-            "edebilir misiniz?")
+        return ("We couldn't find an order with this number under your details. "
+                "Could you share the order number and the phone number or e-mail used for the order?")
+    return ("Bu numarayla size ait bir sipariş göremedik. Sipariş numaranızı ve siparişte "
+            "kullandığınız telefon numarasını ya da e-posta adresini paylaşır mısınız?")
+
+
+def _durum_disi_talep_text(dil: str) -> str:
+    if dil == "en":
+        return "We received your request; our team will get back to you about it shortly."
+    return "Talebinizi aldık, ekibimiz bu konuda sizinle en kısa sürede iletişime geçecek."
+
+
+def _durum_bilinmiyor_text(dil: str) -> str:
+    if dil == "en":
+        return "We will confirm the current status of your order with our team and get back to you."
+    return "Siparişinizin güncel durumunu ekibimizden teyit edip size döneceğiz."
 
 
 def _siparis_durumu(msg: Message, ext: Extraction, kb: KnowledgeBase, dil: str) -> Optional[str]:
@@ -111,7 +133,20 @@ def _siparis_durumu(msg: Message, ext: Extraction, kb: KnowledgeBase, dil: str) 
         return "Sipariş numaranızı paylaşırsanız durumunu hemen kontrol edebiliriz."
 
     owned, withheld = order_access(msg, ext, kb)
-    lines = [_order_status_text(o, dil) for o in owned]
+    folded = fold(msg.mesaj)
+    talep = siparis_durum_disi_talep_kelimesi(folded)
+
+    lines: list[str] = []
+    if talep:
+        # Durum-dışı talep (iptal/adres/eksik vb.): sipariş durumu/takip no SIZDIRILMAZ.
+        lines.append(_durum_disi_talep_text(dil))
+    else:
+        bilinen = [o for o in owned if o.get("durum") is not None]
+        bilinmeyen = [o for o in owned if o.get("durum") is None]
+        lines.extend(_order_status_text(o, dil) for o in bilinen)
+        if bilinmeyen:
+            # "durum" alanı None ise şablona asla basılmaz ("None" sızıntısı).
+            lines.append(_durum_bilinmiyor_text(dil))
     if withheld:
         lines.append(_withheld_text(dil))
     return " ".join(lines)
@@ -122,14 +157,19 @@ def _siparis_durumu(msg: Message, ext: Extraction, kb: KnowledgeBase, dil: str) 
 def _saglik_sikayeti(msg: Message, ext: Extraction, kb: KnowledgeBase, dil: str) -> Optional[str]:
     policy = kb.get_policy("saglik") or {}
     ilk_mesaj = policy.get(f"ilk_mesaj_{dil}") or policy.get("ilk_mesaj_tr")
-    istenecekler = policy.get("istenecekler") or []
+    istenecekler = (policy.get("istenecekler_en") if dil == "en" else policy.get("istenecekler")) or []
 
-    bits = [ilk_mesaj] if ilk_mesaj else []
     if dil == "en":
+        bits = ["We're sorry to hear this."]
+        if ilk_mesaj:
+            bits.append(ilk_mesaj)
         bits.append("Our quality team will contact you as soon as possible.")
         if istenecekler:
             bits.append("Could you please share: " + ", ".join(istenecekler) + "?")
     else:
+        bits = ["Geçmiş olsun."]
+        if ilk_mesaj:
+            bits.append(ilk_mesaj)
         bits.append("Kalite ekibimiz en kısa sürede sizinle iletişime geçecek.")
         if istenecekler:
             bits.append("Bize şu bilgileri paylaşabilir misiniz: " + ", ".join(istenecekler) + "?")
@@ -140,15 +180,30 @@ def _saglik_sikayeti(msg: Message, ext: Extraction, kb: KnowledgeBase, dil: str)
 
 def _iade_hasar(msg: Message, ext: Extraction, kb: KnowledgeBase, dil: str) -> Optional[str]:
     policy = kb.get_policy("iade") or {}
-    hasarli = policy.get("hasarli_urun")
+    folded = fold(msg.mesaj)
+
+    if hasarli_urun_sorusu(folded):
+        hasarli = policy.get("hasarli_urun_en") if dil == "en" else policy.get("hasarli_urun")
+        if dil == "en":
+            detail = hasarli or "Our team will let you know about the return process."
+            return ("We are sorry for the inconvenience. " + detail +
+                    " Could you send us a photo of the damage and your order number?")
+        detail = hasarli or "İade sürecini ekibimiz size iletecek."
+        return ("Yaşadığınız sorun için üzgünüz. " + detail +
+                " Ürünün fotoğrafını ve sipariş numaranızı paylaşabilir misiniz?")
+
+    # Hasar kelimesi yok: sıradan iade talebi, gerçek politikadaki süreyi kullan (uydurma yok).
+    sure_gun = policy.get("sure_gun")
     if dil == "en":
-        detail = hasarli or ("Please share a photo and your order number so we can process "
-                              "a free replacement or refund.")
-        return ("We are sorry for the inconvenience. " + detail +
-                " Could you send us a photo of the damage and your order number?")
-    detail = hasarli or "Fotoğraf ve sipariş numaranızla ücretsiz değişim/iade sürecini başlatabiliriz."
-    return ("Yaşadığınız sorun için üzgünüz. " + detail +
-            " Ürünün fotoğrafını ve sipariş numaranızı paylaşabilir misiniz?")
+        if sure_gun is not None:
+            return (f"We are sorry to hear you would like to return the product. Our return period "
+                    f"is {sure_gun} days. Could you share your order number so we can start the process?")
+        return ("We will confirm our return process with our team and get back to you. "
+                "Could you share your order number?")
+    if sure_gun is not None:
+        return (f"Ürünü iade etmek istemenize üzüldük. İade süremiz {sure_gun} gündür. "
+                "Sipariş numaranızı paylaşırsanız süreci başlatabiliriz.")
+    return "İade sürecini ekibimizden teyit edip size döneceğiz. Sipariş numaranızı paylaşabilir misiniz?"
 
 
 # --- kargo bilgisi -----------------------------------------------------------
@@ -161,9 +216,17 @@ def _kargo_bilgisi(msg: Message, ext: Extraction, kb: KnowledgeBase, dil: str) -
         return "Güncel kargo firması ve süresini teyit edip size döneceğiz."
     firma = policy.get("firma")
     sure = policy.get("sure_en") if dil == "en" else policy.get("sure")
+    folded = fold(msg.mesaj)
+    ucret_soruldu = kargo_ucret_soruluyor(folded, policy)
     if dil == "en":
-        return f"We ship with {firma}. Delivery usually takes {sure}."
-    return f"Siparişleriniz {firma} ile gönderiliyor. Teslimat süresi genellikle {sure}."
+        bits = [f"We ship with {firma}. Delivery usually takes {sure}."]
+        if ucret_soruldu:
+            bits.append("We will confirm the shipping fee and get back to you.")
+        return " ".join(bits)
+    bits = [f"Siparişleriniz {firma} ile gönderiliyor. Teslimat süresi genellikle {sure}."]
+    if ucret_soruldu:
+        bits.append("Kargo ücretini teyit edip size döneceğiz.")
+    return " ".join(bits)
 
 
 # --- fiyat -------------------------------------------------------------------
@@ -178,12 +241,12 @@ def _fiyat(msg: Message, ext: Extraction, kb: KnowledgeBase, dil: str) -> Option
             if fiyat is not None:
                 bits.append(f"{u['ad']}: {fiyat} TL.")
             else:
-                bits.append(_unknown_field_text(u["ad"], dil))
+                bits.append(_unknown_field_text(u["ad"], dil, "fiyat_tl"))
         return " ".join(bits)
 
     folded = fold(msg.mesaj)
     fiyat_listesi = kb.get_policy("fiyat_listesi") or {}
-    if "fiyat listesi" in folded and fiyat_listesi.get("paylasilabilir"):
+    if istek_fiyat_listesi(folded) and fiyat_listesi.get("paylasilabilir"):
         kalemler = [f"{u['ad']}: {u['fiyat_tl']} TL" for u in kb.products() if u.get("fiyat_tl") is not None]
         baslik = "Güncel fiyat listemiz: " if dil == "tr" else "Here is our current price list: "
         return baslik + "; ".join(kalemler) + "."
@@ -212,6 +275,23 @@ def _indirim(msg: Message, ext: Extraction, kb: KnowledgeBase, dil: str) -> Opti
 
 # --- ürün bilgisi -------------------------------------------------------------
 
+# cilt tipi TR->EN eşlemesi (reply İngilizce'yse Türkçe kelime asla kalmasın).
+_CILT_TIPI_EN = {
+    "normal": "normal",
+    "kuru": "dry",
+    "karma": "combination",
+    "yağlı": "oily",
+    "tüm cilt tipleri": "all skin types",
+}
+
+
+def _liste_baglacli(oge_listesi: list[str], baglac: str) -> str:
+    """['normal','kuru','karma'], 've' -> 'normal, kuru ve karma'."""
+    if len(oge_listesi) == 1:
+        return oge_listesi[0]
+    return ", ".join(oge_listesi[:-1]) + f" {baglac} " + oge_listesi[-1]
+
+
 def _urun_alan_metni(u: dict, alan: str, dil: str) -> Optional[str]:
     ad = u["ad"]
     deger = u.get(alan)
@@ -225,10 +305,14 @@ def _urun_alan_metni(u: dict, alan: str, dil: str) -> Optional[str]:
             return f"{ad} is in stock." if deger else f"{ad} is currently out of stock."
         return f"{ad} stoklarımızda var." if deger else f"{ad} şu anda stokta yok."
     if alan == "cilt_tipleri":
-        liste = ", ".join(deger)
         if dil == "en":
-            return f"{ad} is suitable for {liste} skin types."
-        return f"{ad}, {liste} cilt tipleri için uygundur."
+            en_liste = [_CILT_TIPI_EN.get(x, x) for x in deger]
+            if en_liste == ["all skin types"]:
+                return f"{ad} is suitable for all skin types."
+            return f"{ad} is suitable for {_liste_baglacli(en_liste, 'and')} skin types."
+        if deger == ["tüm cilt tipleri"]:
+            return f"{ad} tüm cilt tipleri için uygundur."
+        return f"{ad} {_liste_baglacli(deger, 've')} ciltler için uygundur."
     if alan == "alkol_icerir":
         if dil == "en":
             return f"{ad} contains alcohol." if deger else f"{ad} does not contain alcohol."
@@ -243,37 +327,66 @@ def _urun_bilgisi(msg: Message, ext: Extraction, kb: KnowledgeBase, dil: str) ->
             return "Could you let us know which product you are asking about?"
         return "Hangi ürünü sorduğunuzu belirtebilir misiniz?"
 
-    asked = asked_product_fields(fold(msg.mesaj))
+    folded = fold(msg.mesaj)
+    if tibbi_uygunluk_sorusu(folded):
+        # Tıbbi/hamilelik sorusu: cilt tipi/uygunluk cevabı VERİLMEZ.
+        if dil == "en":
+            return "This is a medical/pregnancy-related question; our quality team will confirm and get back to you."
+        return "Bu tıbbi/hamilelik ile ilgili bir soru; kalite ekibimiz teyit edip size dönecek."
+
+    asked = asked_product_fields(folded)
     bits = []
     for u in urunler:
+        if not asked:
+            # Ürün eşleşti ama tanınan bir alan sorulmuyor: uydurma yok, ürün ekibine devir.
+            if dil == "en":
+                bits.append(f"We will confirm this with our product team about {u['ad']} and get back to you.")
+            else:
+                bits.append(f"{u['ad']} hakkındaki bu soruyu ürün ekibimizden teyit edip size döneceğiz.")
+            continue
         for alan in ("hacim_ml", "stokta", "cilt_tipleri", "alkol_icerir"):
             if alan in asked:
                 metin = _urun_alan_metni(u, alan, dil)
                 if metin:
                     bits.append(metin)
-        if not any(alan in asked for alan in ("hacim_ml", "stokta", "cilt_tipleri", "alkol_icerir")):
-            if dil == "en":
-                bits.append(f"Could you clarify what you would like to know about {u['ad']}?")
-            else:
-                bits.append(f"{u['ad']} için tam olarak hangi bilgiyi merak ettiğinizi belirtebilir misiniz?")
     return " ".join(bits)
 
 
 # --- politika ------------------------------------------------------------------
 
+def _diger_politika_teyit_text(dil: str) -> str:
+    if dil == "en":
+        return "We will confirm the other point you raised with our team and get back to you."
+    return "Sorduğunuz diğer noktayı ekibimizden teyit edip size döneceğiz."
+
+
 def _politika(msg: Message, ext: Extraction, kb: KnowledgeBase, dil: str) -> Optional[str]:
     folded = fold(msg.mesaj)
-    if not any(k in folded for k in ("hayvan", "test", "vegan", "cruelty")):
+    konular = politika_konulari(folded)
+    if not konular:
         if dil == "en":
             return "We will confirm this policy question with our team and get back to you."
         return "Bu politika sorusunu ekibimizden teyit edip size döneceğiz."
 
-    policy = kb.get_policy("hayvan_testi")
-    if not policy:
-        if dil == "en":
-            return "We will confirm our animal-testing policy with our team and get back to you."
-        return "Hayvan testi politikamızı ekibimizden teyit edip size döneceğiz."
-    return policy.get(f"metin_{dil}") or policy.get("metin_tr")
+    bits = []
+    if "hayvan" in konular:
+        policy = kb.get_policy("hayvan_testi")
+        if policy:
+            bits.append(policy.get(f"metin_{dil}") or policy.get("metin_tr"))
+        elif dil == "en":
+            bits.append("We will confirm our animal-testing policy with our team and get back to you.")
+        else:
+            bits.append("Hayvan testi politikamızı ekibimizden teyit edip size döneceğiz.")
+
+    if any(k != "hayvan" for k in konular):
+        if bits:
+            bits.append(_diger_politika_teyit_text(dil))
+        elif dil == "en":
+            bits.append("We will confirm this with our team and get back to you.")
+        else:
+            bits.append("Bu soruyu ekibimizden teyit edip size döneceğiz.")
+
+    return " ".join(bits)
 
 
 # --- bilinmiyor ------------------------------------------------------------------

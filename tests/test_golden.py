@@ -1,20 +1,15 @@
 """Uçtan uca golden test: pipeline.process_all(data/mesajlar.json) vs tests/golden.json.
 
-worker A'nın triage/classify.py'sine bağımlıdır; henüz yoksa test ATLANIR
-(kırmızı sayılmaz) — bu yüzden import en üstte, koşullu değil.
+golden.json beklenen davranış spesifikasyonudur, bağımsız doğruluk ölçümü değildir.
 """
 from __future__ import annotations
 
 import json
 from pathlib import Path
 
-import pytest
-
-pytest.importorskip("triage.classify")
-
-from triage.knowledge import KnowledgeBase  # noqa: E402
-from triage.models import Message  # noqa: E402
-from triage.pipeline import process_all  # noqa: E402
+from triage.knowledge import KnowledgeBase
+from triage.models import Message
+from triage.pipeline import process_all
 
 ROOT = Path(__file__).resolve().parent.parent
 

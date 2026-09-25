@@ -18,7 +18,7 @@
     "oncelik": "P1",
     "aksiyon": "needs_verification",
     "ekip": "destek",
-    "yanit_taslagi": "Merhaba,\n\nGüvenlik nedeniyle sipariş bilgilerini yalnızca sipariş sahibiyle paylaşabiliyoruz. Sipariş numarasını ve o siparişte kullanılan telefon/e-posta bilgisini teyit edebilir misiniz?\n\nİyi günler dileriz.",
+    "yanit_taslagi": "Merhaba,\n\nBu numarayla size ait bir sipariş göremedik. Sipariş numaranızı ve siparişte kullandığınız telefon numarasını ya da e-posta adresini paylaşır mısınız?\n\nİyi günler dileriz.",
     "gerekceler": [
       "kural: sipariş no 12 ('numaralı' kalıbı)",
       "sipariş 12 bu müşteriye ait değil; bilgi paylaşılmadı"
@@ -73,7 +73,7 @@
     "oncelik": "P1",
     "aksiyon": "needs_verification",
     "ekip": "destek",
-    "yanit_taslagi": "Merhaba,\n\nGüvenlik nedeniyle sipariş bilgilerini yalnızca sipariş sahibiyle paylaşabiliyoruz. Sipariş numarasını ve o siparişte kullanılan telefon/e-posta bilgisini teyit edebilir misiniz?\n\nİyi günler dileriz.",
+    "yanit_taslagi": "Merhaba,\n\nBu numarayla size ait bir sipariş göremedik. Sipariş numaranızı ve siparişte kullandığınız telefon numarasını ya da e-posta adresini paylaşır mısınız?\n\nİyi günler dileriz.",
     "gerekceler": [
       "kural: sipariş no 9999 ('numaralı' kalıbı)",
       "sipariş 9999 bulunamadı"
@@ -98,9 +98,9 @@
     "oncelik": "P0",
     "aksiyon": "human_escalation",
     "ekip": "kalite",
-    "yanit_taslagi": "Merhaba,\n\nÜrünü kullanmayı hemen bırakmanızı rica ederiz. Şikâyetiniz sürer ya da artarsa lütfen bir sağlık profesyoneline başvurun. Kalite ekibimiz en kısa sürede sizinle iletişime geçecek. Bize şu bilgileri paylaşabilir misiniz: ürün adı, lot/seri numarası (kutunun altında), cildin fotoğrafı?\n\nİyi günler dileriz.",
+    "yanit_taslagi": "Merhaba,\n\nGeçmiş olsun. Ürünü kullanmayı hemen bırakmanızı rica ederiz. Şikâyetiniz sürer ya da artarsa lütfen bir sağlık profesyoneline başvurun. Kalite ekibimiz en kısa sürede sizinle iletişime geçecek. Bize şu bilgileri paylaşabilir misiniz: ürün adı, lot/seri numarası (kutunun altında), etkilenen bölgenin fotoğrafı?\n\nİyi günler dileriz.",
     "gerekceler": [
-      "kural: sağlık anahtar kelimesi 'yand'"
+      "kural: sağlık anahtar kelimesi 'yandi'"
     ],
     "kaynaklar": [
       "politikalar.json#saglik"
@@ -239,7 +239,7 @@
     "oncelik": "P3",
     "aksiyon": "auto_reply",
     "ekip": null,
-    "yanit_taslagi": "Merhaba,\n\nRetinol Serum stoklarımızda var. Retinol Serum, normal, kuru, karma cilt tipleri için uygundur.\n\nİyi günler dileriz.",
+    "yanit_taslagi": "Merhaba,\n\nRetinol Serum stoklarımızda var. Retinol Serum normal, kuru ve karma ciltler için uygundur.\n\nİyi günler dileriz.",
     "gerekceler": [
       "kural: ürün eşleşti + 'var mi'"
     ],
@@ -295,7 +295,7 @@
     "oncelik": "P3",
     "aksiyon": "auto_reply",
     "ekip": null,
-    "yanit_taslagi": "Merhaba,\n\nC Vitamini Serumu, normal, karma, yağlı cilt tipleri için uygundur.\n\nİyi günler dileriz.",
+    "yanit_taslagi": "Merhaba,\n\nC Vitamini Serumu normal, karma ve yağlı ciltler için uygundur.\n\nİyi günler dileriz.",
     "gerekceler": [
       "kural: ürün eşleşti + 'cilt'"
     ],
@@ -353,7 +353,9 @@
     "gerekceler": [
       "kural: ürün eşleşti + 'var mi'"
     ],
-    "kaynaklar": [],
+    "kaynaklar": [
+      "urunler.json#tonik"
+    ],
     "eksik_bilgiler": [
       "urun:tonik:alkol_icerir"
     ]

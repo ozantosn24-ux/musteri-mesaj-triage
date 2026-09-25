@@ -7,12 +7,10 @@ from typing import Any, Optional
 
 import pytest
 
+from triage import classify
 from triage.knowledge import KnowledgeBase
 from triage.llm import OUTPUT_SCHEMA, LLMExtractor, make_extractor
 from triage.models import Intent, Message
-
-# classify.py başka bir işçi tarafından hâlâ yazılıyor olabilir; yoksa bu dosyayı atla.
-classify = pytest.importorskip("triage.classify")
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 
@@ -124,18 +122,41 @@ def test_refusal_falls_back_to_rules(messages, kb):
     assert ext.gerekceler[0].startswith("llm_fallback")
 
 
-# --- bilinmeyen niyet atılır, geçerli niyet kalır ---
+# --- şema ihlali (bilinmeyen niyet, eksik/fazla anahtar, yanlış tip) -> fallback ---
 
 
-def test_unknown_intent_dropped_valid_kept(messages, kb):
-    msg = _msg(messages, 8)  # "Güneş kreminin fiyatı ne kadar? ... 4 numaralı siparişim ..."
-    client = FakeClient(payload={"dil": "tr", "intents": ["hack", "fiyat"], "urun": []})
-    extractor = LLMExtractor(client, "fake-model")
+@pytest.mark.parametrize("payload", [
+    {"dil": "tr", "intents": ["hack", "fiyat"], "urun": []},        # enum dışı niyet
+    {"dil": "tr", "intents": ["fiyat"]},                            # eksik anahtar
+    {"dil": "tr", "intents": ["fiyat"], "urun": [], "yanit": "x"},  # fazla anahtar
+    {"dil": "tr", "intents": "fiyat", "urun": []},                  # yanlış tip
+    {"dil": "tr", "intents": [], "urun": []},                       # boş niyet
+])
+def test_schema_violation_falls_back_to_rules(messages, kb, payload):
+    msg = _msg(messages, 8)
+    ext = LLMExtractor(FakeClient(payload=payload), "fake-model")(msg, kb)
 
-    ext = extractor(msg, kb)
+    assert ext.gerekceler[0].startswith("llm_fallback")
+    assert "şema ihlali" in ext.gerekceler[0]
 
-    assert ext.intents == [Intent.FIYAT]
-    assert any("hack" in g for g in ext.gerekceler)
+
+# --- istemci hata fırlatırsa -> fallback; hata METNİ rapora sızmaz ---
+
+
+class _RaisingMessages:
+    def create(self, **kwargs: Any) -> Any:
+        raise RuntimeError("sağlayıcı ayrıntısı: gizli-istek-kimliği-123")
+
+
+def test_client_exception_falls_back_without_leaking_message(messages, kb):
+    msg = _msg(messages, 6)
+    client = SimpleNamespace(messages=_RaisingMessages())
+
+    ext = LLMExtractor(client, "fake-model")(msg, kb)
+
+    assert ext.gerekceler[0].startswith("llm_fallback")
+    assert "RuntimeError" in ext.gerekceler[0]
+    assert not any("gizli-istek-kimliği" in g for g in ext.gerekceler)
 
 
 # --- bilinmeyen ürün slug'ı atılır ---
@@ -156,7 +177,8 @@ def test_unknown_product_slug_dropped(messages, kb):
 
 
 def test_safety_overlay_via_pipeline_forces_escalation(messages, kb):
-    pipeline = pytest.importorskip("triage.pipeline")
+    from triage import pipeline
+
     msg = _msg(messages, 4)  # "... yüzüm yandı ve kızardı ..."
     client = FakeClient(payload={"dil": "tr", "intents": ["spam"], "urun": []})
     extractor = LLMExtractor(client, "fake-model")
@@ -179,7 +201,10 @@ def test_make_extractor_returns_none_without_env(monkeypatch):
 
 
 def test_make_extractor_returns_none_without_anthropic_package(monkeypatch):
-    # Bu makinede `anthropic` paketi kurulu değil; anahtar olsa da import None'a düşer.
+    # Paket kurulu olsa da olmasa da: import başarısız olursa anahtar olsa bile None döner.
+    import sys
+
+    monkeypatch.setitem(sys.modules, "anthropic", None)  # "import anthropic" -> ImportError
     monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-test-fake")
 
     assert make_extractor() is None

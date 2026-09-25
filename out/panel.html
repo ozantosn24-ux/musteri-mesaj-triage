@@ -76,7 +76,7 @@ button[disabled] { opacity: 0.6; }
 <div class="wrap">
   <header class="top">
     <h1>Müşteri Mesajı Onay Kuyruğu</h1>
-    <p class="subtitle">Üretim: 2026-09-25 14:48 · Veriler VARSAYIM etiketli örnek veridir</p>
+    <p class="subtitle">Üretim: 2026-09-25 15:19 · Veriler VARSAYIM etiketli örnek veridir</p>
   </header>
   <div class="kpis"><div class="kpi"><span class="n">15</span><span class="l">Toplam mesaj</span></div><div class="kpi"><span class="n">%60</span><span class="l">Otomatik yanıt oranı</span></div><div class="kpi"><span class="n">5</span><span class="l">Doğrulama / insan gerekli</span></div><div class="kpi"><span class="n">1</span><span class="l">ACİL (sağlık)</span></div><div class="kpi"><span class="n">1</span><span class="l">Karantina</span></div></div>
   <div class="banner"><strong>ACİL: sağlık şikâyeti, 1 mesaj. Önce bunlar.</strong><ul><li>#4 — Dün aldığım serumu kullandım, yüzüm yandı ve kızardı. Ne yapmalıyım?</li></ul></div>
@@ -94,8 +94,9 @@ button[disabled] { opacity: 0.6; }
   <div class="label">Mesaj</div>
   <div class="msg">Dün aldığım serumu kullandım, yüzüm yandı ve kızardı. Ne yapmalıyım?</div>
   <div class="label">Taslak yanıt</div>
-  <div class="draft">Merhaba,<br><br>Ürünü kullanmayı hemen bırakmanızı rica ederiz. Şikâyetiniz sürer ya da artarsa lütfen bir sağlık profesyoneline başvurun. Kalite ekibimiz en kısa sürede sizinle iletişime geçecek. Bize şu bilgileri paylaşabilir misiniz: ürün adı, lot/seri numarası (kutunun altında), cildin fotoğrafı?<br><br>İyi günler dileriz.</div>
-  <details><summary>Gerekçe ve kaynaklar</summary><ul><li>kural: sağlık anahtar kelimesi &#x27;yand&#x27;</li><li>politikalar.json#saglik</li></ul></details>
+  <div class="draft">Merhaba,<br><br>Geçmiş olsun. Ürünü kullanmayı hemen bırakmanızı rica ederiz. Şikâyetiniz sürer ya da artarsa lütfen bir sağlık profesyoneline başvurun. Kalite ekibimiz en kısa sürede sizinle iletişime geçecek. Bize şu bilgileri paylaşabilir misiniz: ürün adı, lot/seri numarası (kutunun altında), etkilenen bölgenin fotoğrafı?<br><br>İyi günler dileriz.</div>
+  
+  <details><summary>Gerekçe ve kaynaklar</summary><ul><li>kural: sağlık anahtar kelimesi &#x27;yandi&#x27;</li><li>politikalar.json#saglik</li></ul></details>
   <div class="actions">
     <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Onayla</button>
     <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Düzenle</button>
@@ -113,7 +114,8 @@ button[disabled] { opacity: 0.6; }
   <div class="label">Mesaj</div>
   <div class="msg">Merhaba, 12 numaralı siparişim nerede? Ne zaman kargoya verilir?</div>
   <div class="label">Taslak yanıt</div>
-  <div class="draft">Merhaba,<br><br>Güvenlik nedeniyle sipariş bilgilerini yalnızca sipariş sahibiyle paylaşabiliyoruz. Sipariş numarasını ve o siparişte kullanılan telefon/e-posta bilgisini teyit edebilir misiniz?<br><br>İyi günler dileriz.</div>
+  <div class="draft">Merhaba,<br><br>Bu numarayla size ait bir sipariş göremedik. Sipariş numaranızı ve siparişte kullandığınız telefon numarasını ya da e-posta adresini paylaşır mısınız?<br><br>İyi günler dileriz.</div>
+  
   <details><summary>Gerekçe ve kaynaklar</summary><ul><li>kural: sipariş no 12 (&#x27;numaralı&#x27; kalıbı)</li><li>sipariş 12 bu müşteriye ait değil; bilgi paylaşılmadı</li></ul></details>
   <div class="actions">
     <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Onayla</button>
@@ -132,7 +134,8 @@ button[disabled] { opacity: 0.6; }
   <div class="label">Mesaj</div>
   <div class="msg">9999 numaralı siparişim hâlâ elime ulaşmadı, kontrol eder misiniz?</div>
   <div class="label">Taslak yanıt</div>
-  <div class="draft">Merhaba,<br><br>Güvenlik nedeniyle sipariş bilgilerini yalnızca sipariş sahibiyle paylaşabiliyoruz. Sipariş numarasını ve o siparişte kullanılan telefon/e-posta bilgisini teyit edebilir misiniz?<br><br>İyi günler dileriz.</div>
+  <div class="draft">Merhaba,<br><br>Bu numarayla size ait bir sipariş göremedik. Sipariş numaranızı ve siparişte kullandığınız telefon numarasını ya da e-posta adresini paylaşır mısınız?<br><br>İyi günler dileriz.</div>
+  
   <details><summary>Gerekçe ve kaynaklar</summary><ul><li>kural: sipariş no 9999 (&#x27;numaralı&#x27; kalıbı)</li><li>sipariş 9999 bulunamadı</li></ul></details>
   <div class="actions">
     <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Onayla</button>
@@ -152,6 +155,7 @@ button[disabled] { opacity: 0.6; }
   <div class="msg">Kutu ezik geldi, ürünü iade etmek istiyorum.</div>
   <div class="label">Taslak yanıt</div>
   <div class="draft">Merhaba,<br><br>Yaşadığınız sorun için üzgünüz. Hasarlı gelen ürünlerde fotoğraf ve sipariş numarasıyla ücretsiz değişim ya da iade yapılır. Ürünün fotoğrafını ve sipariş numaranızı paylaşabilir misiniz?<br><br>İyi günler dileriz.</div>
+  
   <details><summary>Gerekçe ve kaynaklar</summary><ul><li>kural: iade/hasar anahtar kelimesi &#x27;iade&#x27;</li><li>politikalar.json#iade</li></ul></details>
   <div class="actions">
     <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Onayla</button>
@@ -171,6 +175,7 @@ button[disabled] { opacity: 0.6; }
   <div class="msg">5 numaralı siparişimin durumu nedir acaba?</div>
   <div class="label">Taslak yanıt</div>
   <div class="draft">Merhaba,<br><br>5 numaralı siparişiniz kargoda. Kargo firması: Yurtiçi Kargo. Takip numarası: YK3000000005. Kargoya veriliş tarihi: 24.09.2026. Tahmini varış tarihi: 26.09.2026.<br><br>İyi günler dileriz.</div>
+  
   <details><summary>Gerekçe ve kaynaklar</summary><ul><li>kural: sipariş no 5 (&#x27;numaralı&#x27; kalıbı)</li><li>siparisler.json#5</li></ul></details>
   <div class="actions">
     <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Onayla</button>
@@ -190,6 +195,7 @@ button[disabled] { opacity: 0.6; }
   <div class="msg">Hi, where is my order #3? It has been a week.</div>
   <div class="label">Taslak yanıt</div>
   <div class="draft">Hello,<br><br>Order #3 is on the way. Carrier: Yurtiçi Kargo. Tracking number: YK3000000003. Shipped on: 2026-09-24. Estimated delivery: 2026-09-26.<br><br>Best regards.</div>
+  
   <details><summary>Gerekçe ve kaynaklar</summary><ul><li>kural: sipariş no 3 (&#x27;order&#x27; kalıbı)</li><li>siparisler.json#3</li></ul></details>
   <div class="actions">
     <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Onayla</button>
@@ -209,6 +215,7 @@ button[disabled] { opacity: 0.6; }
   <div class="msg">Güneş kreminin fiyatı ne kadar? Bir de 4 numaralı siparişim ne zaman gelir?</div>
   <div class="label">Taslak yanıt</div>
   <div class="draft">Merhaba,<br><br>4 numaralı siparişiniz hazırlanıyor. Tahmini kargoya veriliş tarihi: 26.09.2026. Güneş Kremi SPF50: 450 TL.<br><br>İyi günler dileriz.</div>
+  
   <details><summary>Gerekçe ve kaynaklar</summary><ul><li>kural: sipariş no 4 (&#x27;numaralı&#x27; kalıbı)</li><li>kural: fiyat anahtar kelimesi</li><li>siparisler.json#4</li><li>urunler.json#gunes_kremi_spf50</li></ul></details>
   <div class="actions">
     <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Onayla</button>
@@ -228,6 +235,7 @@ button[disabled] { opacity: 0.6; }
   <div class="msg">Takipçi kasmak ister misiniz? 🔥 %100 organik takipçi: bit.ly/takip-artir</div>
   <div class="label">Taslak yanıt</div>
   <div class="draft"><em>yanıt verilmez</em></div>
+  
   <details><summary>Gerekçe ve kaynaklar</summary><ul><li>kural: link + tanıtım kelimesi → spam</li></ul></details>
   <div class="actions">
     <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Onayla</button>
@@ -246,7 +254,8 @@ button[disabled] { opacity: 0.6; }
   <div class="label">Mesaj</div>
   <div class="msg">Retinol serumunuz var mı? Kuru ciltte kullanılır mı?</div>
   <div class="label">Taslak yanıt</div>
-  <div class="draft">Merhaba,<br><br>Retinol Serum stoklarımızda var. Retinol Serum, normal, kuru, karma cilt tipleri için uygundur.<br><br>İyi günler dileriz.</div>
+  <div class="draft">Merhaba,<br><br>Retinol Serum stoklarımızda var. Retinol Serum normal, kuru ve karma ciltler için uygundur.<br><br>İyi günler dileriz.</div>
+  
   <details><summary>Gerekçe ve kaynaklar</summary><ul><li>kural: ürün eşleşti + &#x27;var mi&#x27;</li><li>urunler.json#retinol_serum</li></ul></details>
   <div class="actions">
     <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Onayla</button>
@@ -266,6 +275,7 @@ button[disabled] { opacity: 0.6; }
   <div class="msg">Nemlendirici krem ne kadar?</div>
   <div class="label">Taslak yanıt</div>
   <div class="draft">Merhaba,<br><br>Nemlendirici Krem: 380 TL.<br><br>İyi günler dileriz.</div>
+  
   <details><summary>Gerekçe ve kaynaklar</summary><ul><li>kural: fiyat anahtar kelimesi</li><li>urunler.json#nemlendirici_krem</li></ul></details>
   <div class="actions">
     <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Onayla</button>
@@ -284,7 +294,8 @@ button[disabled] { opacity: 0.6; }
   <div class="label">Mesaj</div>
   <div class="msg">C vitamini serumu hangi cilt tipine uygundur?</div>
   <div class="label">Taslak yanıt</div>
-  <div class="draft">Merhaba,<br><br>C Vitamini Serumu, normal, karma, yağlı cilt tipleri için uygundur.<br><br>İyi günler dileriz.</div>
+  <div class="draft">Merhaba,<br><br>C Vitamini Serumu normal, karma ve yağlı ciltler için uygundur.<br><br>İyi günler dileriz.</div>
+  
   <details><summary>Gerekçe ve kaynaklar</summary><ul><li>kural: ürün eşleşti + &#x27;cilt&#x27;</li><li>urunler.json#c_vitamini_serum</li></ul></details>
   <div class="actions">
     <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Onayla</button>
@@ -304,6 +315,7 @@ button[disabled] { opacity: 0.6; }
   <div class="msg">Siparişler hangi kargo firmasıyla gönderiliyor?</div>
   <div class="label">Taslak yanıt</div>
   <div class="draft">Merhaba,<br><br>Siparişleriniz Yurtiçi Kargo ile gönderiliyor. Teslimat süresi genellikle 1-3 iş günü.<br><br>İyi günler dileriz.</div>
+  
   <details><summary>Gerekçe ve kaynaklar</summary><ul><li>kural: kargo bilgisi kalıbı &#x27;hangi kargo&#x27;</li><li>politikalar.json#kargo</li></ul></details>
   <div class="actions">
     <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Onayla</button>
@@ -323,7 +335,8 @@ button[disabled] { opacity: 0.6; }
   <div class="msg">Tonik 200 ml mi? İçeriğinde alkol var mı?</div>
   <div class="label">Taslak yanıt</div>
   <div class="draft">Merhaba,<br><br>Tonik 200 ml&#x27;dir. Tonik ürününün alkol içeriği bilgisini ürün ekibimizden teyit edip size döneceğiz.<br><br>İyi günler dileriz.</div>
-  <details><summary>Gerekçe ve kaynaklar</summary><ul><li>kural: ürün eşleşti + &#x27;var mi&#x27;</li></ul></details>
+  <div class="label">Veride eksik (bu yüzden insana gitti)</div><div class="msg"><code>urun:tonik:alkol_icerir</code></div>
+  <details><summary>Gerekçe ve kaynaklar</summary><ul><li>kural: ürün eşleşti + &#x27;var mi&#x27;</li><li>urunler.json#tonik</li></ul></details>
   <div class="actions">
     <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Onayla</button>
     <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Düzenle</button>
@@ -342,6 +355,7 @@ button[disabled] { opacity: 0.6; }
   <div class="msg">İndirim kodunuz var mı, fiyat listesi paylaşır mısınız?</div>
   <div class="label">Taslak yanıt</div>
   <div class="draft">Merhaba,<br><br>Güncel fiyat listemiz: Güneş Kremi SPF50: 450 TL; Retinol Serum: 650 TL; Nemlendirici Krem: 380 TL; C Vitamini Serumu: 590 TL; Tonik: 320 TL. Şu an aktif bir indirim kodumuz bulunmuyor.<br><br>İyi günler dileriz.</div>
+  
   <details><summary>Gerekçe ve kaynaklar</summary><ul><li>kural: fiyat anahtar kelimesi</li><li>kural: indirim anahtar kelimesi &#x27;indirim&#x27;</li><li>fiyat listesi paylaşılabilir</li><li>aktif kod yok, kod uydurulmadı</li><li>politikalar.json#fiyat_listesi</li><li>urunler.json#gunes_kremi_spf50</li><li>urunler.json#retinol_serum</li><li>urunler.json#nemlendirici_krem</li><li>urunler.json#c_vitamini_serum</li><li>urunler.json#tonik</li><li>politikalar.json#indirim</li></ul></details>
   <div class="actions">
     <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Onayla</button>
@@ -361,6 +375,7 @@ button[disabled] { opacity: 0.6; }
   <div class="msg">Merhaba, ürünleriniz hayvanlar üzerinde test ediliyor mu?</div>
   <div class="label">Taslak yanıt</div>
   <div class="draft">Merhaba,<br><br>Ürünlerimiz ve hammaddelerimiz hayvanlar üzerinde test edilmemektedir.<br><br>İyi günler dileriz.</div>
+  
   <details><summary>Gerekçe ve kaynaklar</summary><ul><li>kural: politika anahtar kelimesi &#x27;hayvan&#x27;</li><li>politikalar.json#hayvan_testi</li></ul></details>
   <div class="actions">
     <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Onayla</button>

@@ -1,8 +1,8 @@
 """Uçtan uca akış: classify -> güvenlik katmanı -> decide -> reply -> Result.
 
 triage.classify'a import ANINDA değil, çağrı ANINDA bağlanır (deferred import).
-Böylece bu modül, worker A'nın classify.py'si henüz yazılmamışken de import
-edilebilir; sadece varsayılan extractor'la process() çağrıldığında gerekir.
+Böylece bu modül, triage/classify.py henüz yazılmamışken de import edilebilir;
+sadece varsayılan extractor'la process() çağrıldığında gerekir.
 """
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ from typing import Callable, Optional
 
 from .decide import decide
 from .knowledge import KnowledgeBase
-from .models import Extraction, Message, Result
+from .models import Extraction, Intent, Message, Result
 from .reply import build_reply
 
 Extractor = Callable[[Message, KnowledgeBase], Extraction]
@@ -30,7 +30,8 @@ def process(msg: Message, kb: KnowledgeBase, extractor: Optional[Extractor] = No
 
     guvenlik_niyetleri = safety_intents(msg.mesaj)
     yeni_niyetler = set(guvenlik_niyetleri) - set(ext.intents)
-    ext.intents = list(set(ext.intents) | guvenlik_niyetleri)
+    # dict.fromkeys: sıra deterministik olsun (set birleşimi sırayı garanti etmez).
+    ext.intents = list(dict.fromkeys([*ext.intents, *guvenlik_niyetleri]))
     if yeni_niyetler:
         ext.gerekceler.append("güvenlik katmanı: sağlık niyeti eklendi")
 
@@ -40,6 +41,15 @@ def process(msg: Message, kb: KnowledgeBase, extractor: Optional[Extractor] = No
     if dogru_siparis_no != ext.entities.siparis_no:
         ext.gerekceler.append("güvenlik katmanı: sipariş numaraları regex ile düzeltildi")
     ext.entities.siparis_no = dogru_siparis_no
+
+    # Sipariş no varsa ama SIPARIS_DURUMU niyeti eksikse: extractor (özellikle
+    # bir LLM) atlamış olabilir. Sahiplik doğrulaması ATLANAMAZ, bu yüzden
+    # niyet burada zorla eklenir (extractor'a güvenmeden).
+    if dogru_siparis_no and Intent.SIPARIS_DURUMU not in ext.intents:
+        ext.intents = list(dict.fromkeys([*ext.intents, Intent.SIPARIS_DURUMU]))
+        ext.gerekceler.append(
+            "güvenlik katmanı: sipariş no var ama SIPARIS_DURUMU niyeti eksikti, eklendi"
+        )
 
     decision = decide(msg, ext, kb)
     yanit = build_reply(msg, ext, decision, kb)

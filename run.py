@@ -13,6 +13,7 @@ from pathlib import Path
 from triage.knowledge import KnowledgeBase
 from triage.models import Message, Result
 from triage.pipeline import Extractor, process_all
+from triage.render import write_reports
 
 
 def _reconfigure_stdout_utf8() -> None:
@@ -32,11 +33,7 @@ def _make_extractor(use_llm: bool) -> Extractor | None:
     if not use_llm:
         return None  # pipeline.process varsayılan olarak triage.classify.classify kullanır
 
-    try:
-        from triage.llm import make_extractor
-    except ImportError:
-        print("Uyarı: triage.llm bulunamadı, kural tabanlı sınıflandırıcıya dönülüyor.")
-        return None
+    from triage.llm import make_extractor
 
     extractor = make_extractor()
     if extractor is None:
@@ -46,11 +43,12 @@ def _make_extractor(use_llm: bool) -> Extractor | None:
 
 
 def _print_summary(results: list[Result]) -> None:
-    basliklar = ("id", "kanal", "oncelik", "aksiyon", "intents")
-    print(" | ".join(f"{b:<10}" for b in basliklar))
+    genislik = (4, 10, 8, 19, 0)
+    basliklar = ("id", "kanal", "oncelik", "aksiyon", "niyetler")
+    print(" | ".join(f"{b:<{g}}" for b, g in zip(basliklar, genislik)))
     for r in results:
         satir = (str(r.id), r.kanal, r.oncelik, r.aksiyon, ",".join(r.intents))
-        print(" | ".join(f"{s:<10}" for s in satir))
+        print(" | ".join(f"{s:<{g}}" for s, g in zip(satir, genislik)))
 
 
 def main() -> None:
@@ -58,8 +56,9 @@ def main() -> None:
 
     parser = argparse.ArgumentParser(description="Müşteri mesajı triage çalıştırıcı")
     parser.add_argument("--llm", action="store_true", help="Opsiyonel LLM extractor'ı dene")
-    parser.add_argument("--data-dir", default="data")
-    parser.add_argument("--out", default="out")
+    kok = Path(__file__).resolve().parent
+    parser.add_argument("--data-dir", default=str(kok / "data"))
+    parser.add_argument("--out", default=str(kok / "out"))
     args = parser.parse_args()
 
     data_dir = Path(args.data_dir)
@@ -78,13 +77,7 @@ def main() -> None:
         encoding="utf-8",
     )
 
-    try:
-        from triage.render import write_reports
-    except ImportError:
-        print("rapor modülü yok, atlandı")
-    else:
-        write_reports(results, kb, out_dir)
-
+    write_reports(results, kb, out_dir)
     _print_summary(results)
 
 

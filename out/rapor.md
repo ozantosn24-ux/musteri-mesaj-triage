@@ -1,6 +1,6 @@
 # Müşteri Mesajı Onay Kuyruğu
 
-_Üretim: 2026-09-25 14:48 · Veriler VARSAYIM etiketlidir (case-brief.md e-postaya eklenmemişti, sipariş/ürün/politika verisi örnek veridir)._
+_Üretim: 2026-09-25 15:19 · Veriler VARSAYIM etiketlidir (case-brief.md e-postaya eklenmemişti, sipariş/ürün/politika verisi örnek veridir)._
 
 ## Özet
 
@@ -27,12 +27,12 @@ Otomatik yanıt oranı: **%60 → %67** (varsayımsal tahmin; ilgili alanlar dol
 
 > Merhaba,
 > 
-> Ürünü kullanmayı hemen bırakmanızı rica ederiz. Şikâyetiniz sürer ya da artarsa lütfen bir sağlık profesyoneline başvurun. Kalite ekibimiz en kısa sürede sizinle iletişime geçecek. Bize şu bilgileri paylaşabilir misiniz: ürün adı, lot/seri numarası (kutunun altında), cildin fotoğrafı?
+> Geçmiş olsun. Ürünü kullanmayı hemen bırakmanızı rica ederiz. Şikâyetiniz sürer ya da artarsa lütfen bir sağlık profesyoneline başvurun. Kalite ekibimiz en kısa sürede sizinle iletişime geçecek. Bize şu bilgileri paylaşabilir misiniz: ürün adı, lot/seri numarası (kutunun altında), etkilenen bölgenin fotoğrafı?
 > 
 > İyi günler dileriz.
 
 **Gerekçeler**
-- kural: sağlık anahtar kelimesi 'yand'
+- kural: sağlık anahtar kelimesi 'yandi'
 
 Kaynaklar: politikalar.json#saglik
 
@@ -65,8 +65,12 @@ Kaynaklar: politikalar.json#iade
 > 
 > İyi günler dileriz.
 
+**Veride eksik (bu yüzden insana gitti):** `urun:tonik:alkol_icerir`
+
 **Gerekçeler**
 - kural: ürün eşleşti + 'var mi'
+
+Kaynaklar: urunler.json#tonik
 
 ## Doğrulama gerekli
 
@@ -78,7 +82,7 @@ Kaynaklar: politikalar.json#iade
 
 > Merhaba,
 > 
-> Güvenlik nedeniyle sipariş bilgilerini yalnızca sipariş sahibiyle paylaşabiliyoruz. Sipariş numarasını ve o siparişte kullanılan telefon/e-posta bilgisini teyit edebilir misiniz?
+> Bu numarayla size ait bir sipariş göremedik. Sipariş numaranızı ve siparişte kullandığınız telefon numarasını ya da e-posta adresini paylaşır mısınız?
 > 
 > İyi günler dileriz.
 
@@ -94,7 +98,7 @@ Kaynaklar: politikalar.json#iade
 
 > Merhaba,
 > 
-> Güvenlik nedeniyle sipariş bilgilerini yalnızca sipariş sahibiyle paylaşabiliyoruz. Sipariş numarasını ve o siparişte kullanılan telefon/e-posta bilgisini teyit edebilir misiniz?
+> Bu numarayla size ait bir sipariş göremedik. Sipariş numaranızı ve siparişte kullandığınız telefon numarasını ya da e-posta adresini paylaşır mısınız?
 > 
 > İyi günler dileriz.
 
@@ -164,7 +168,7 @@ Kaynaklar: siparisler.json#4, urunler.json#gunes_kremi_spf50
 
 > Merhaba,
 > 
-> Retinol Serum stoklarımızda var. Retinol Serum, normal, kuru, karma cilt tipleri için uygundur.
+> Retinol Serum stoklarımızda var. Retinol Serum normal, kuru ve karma ciltler için uygundur.
 > 
 > İyi günler dileriz.
 
@@ -198,7 +202,7 @@ Kaynaklar: urunler.json#nemlendirici_krem
 
 > Merhaba,
 > 
-> C Vitamini Serumu, normal, karma, yağlı cilt tipleri için uygundur.
+> C Vitamini Serumu normal, karma ve yağlı ciltler için uygundur.
 > 
 > İyi günler dileriz.
 

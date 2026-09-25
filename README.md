@@ -1,17 +1,22 @@
 # Müşteri Mesajı Triage Asistanı
 
-WhatsApp ve Instagram'dan gelen müşteri mesajlarını okuyan, ne istendiğini anlayan, gerekli bilgiye bakan ve her mesaj için
-**öncelik, aksiyon ve yanıt taslağı** üreten küçük bir asistan. Riskli mesajları (sağlık şikâyeti, başkasına ait sipariş,
-bilinmeyen bilgi) otomatik cevaplamaz, doğru ekibe aktarır.
+Nurederm / LabelSkin uygulama görevi.
 
-Nurederm / LabelSkin uygulama görevi için hazırlandı.
+**Kısaca**
+- WhatsApp ve Instagram mesajlarını okur. Her mesaj için **öncelik, aksiyon, ilgili ekip ve yanıt taslağı** üretir.
+- **Bilgi uydurmaz:** sipariş durumu, fiyat, içerik ve politika yalnız veriden gelir. Veride yoksa mesaj insana gider.
+- **Riskliyi insana verir:** sağlık şikâyeti ACİL olarak kalite ekibine gider. Başkasının siparişi hakkında bilgi verilmez.
+- Sonuçlar tek sayfalık bir **onay kuyruğu panelinde** toplanır (`out/panel.html`, aşağıdaki görüntü).
+- Tek komutla çalışır (`python run.py`), ek paket gerekmez. Yapay zekâ (LLM) modu opsiyoneldir.
+
+![Onay kuyruğu paneli](docs/panel.jpg)
 
 ## Önce bir not: brief eksikti
 
-E-postada "tüm ayrıntılar case-brief.md içinde" yazıyordu ama ekte bu dosya yoktu; ekli olan, e-postanın gönderim
-şablonuydu. Bu yüzden görevi `mesajlar.json`'daki 15 mesajdan çıkararak tanımladım. Sipariş, ürün ve politika verisi
-verilmediği için bunları **kurgusal örnek veri** olarak ben oluşturdum; her dosyanın başında `_uyari` alanı var.
-Brief elime ulaşırsa kuralları ve veriyi ona göre uyarlarım.
+E-postada "tüm ayrıntılar case-brief.md içinde" yazıyordu ama ekte bu dosya yoktu. Ekteki md dosyası, e-postanın
+gönderim metniydi. Süre işlediği için görevi `mesajlar.json`'daki 15 mesajdan çıkararak tanımladım ve bu durumu teslim
+e-postasında da belirttim. Sipariş, ürün ve politika verisi verilmediği için bunları **kurgusal örnek veri** olarak ben
+oluşturdum; her dosyanın başında `_uyari` alanı var. Brief elime ulaşırsa kuralları ve veriyi ona göre uyarlarım.
 
 ## Hızlı başlangıç
 
@@ -118,8 +123,8 @@ gerçekten otomatiğe dönen mesajlar sayılır (sahiplik ya da sağlık gibi ba
 
 **Otomatik yanıt oranı %60 → %67 (varsayımsal tahmin).**
 
-Fason üretim yapan bir şirket için asıl mesaj şu: otomasyonun darboğazı çoğu zaman yapay zekâ değil, ürün içerik
-verisinin (INCI, alkol, parfüm, uygun cilt tipi) eksiksiz ve erişilebilir olmasıdır.
+Kozmetik tarafında asıl mesaj şu: otomasyonun darboğazı çoğu zaman yapay zekâ değil, ürün içerik verisinin (INCI,
+alkol, parfüm, uygun cilt tipi) eksiksiz ve erişilebilir olmasıdır.
 
 ### Kozmetik yan etki bildirimi
 
@@ -136,16 +141,21 @@ Türkçe karakter kullanmayan yazım, emoji, İngilizce, farklı ifadeler, links
 | Ölçüm | Tamamen doğru |
 |---|---|
 | İlk ölçüm, kurallar bu mesajları hiç görmeden (`docs/varyasyon_ilk_olcum.md`) | **10/20** |
-| Genel kural düzeltmelerinden sonra (`python eval_varyasyon.py`) | 19/20 |
+| Düzeltmelerden ve iki bağımsız incelemeden sonra (`python eval_varyasyon.py`) | 20/20 |
 
-İkinci sayı artık görülmüş veri üzerinde, genelleme iddiası değil. Asıl bilgi ilk ölçümde: **yanlışların hepsi güvenli
-taraftaydı.** Hiçbir mesaj haksız yere otomatik cevaplanmadı; tanınmayan her şey insana gitti. Tek ciddi kaçırma, cildi
-soyulan bir müşterinin ACİL yerine DÜŞÜK öncelik almasıydı (yine insana gidiyordu ama acil işaretlenmiyordu); sağlık kelime listesi
-genişletildi. Bu iki özellik artık test: ACİL beklenen mesaj ACİL'den düşmez, beklenmeyen mesaj otomatik cevaplanmaz
-(`tests/test_varyasyon.py`, mutasyonla sınandı).
+İkinci sayı artık görülmüş veri üzerinde, genelleme iddiası değil. Asıl bilgi ilk ölçümde. Bu 20 mesajda hiçbir mesaj
+haksız yere otomatik cevaplanmadı. Ama biri eksik yönlendirildi: cildi soyulan bir müşteri ACİL yerine DÜŞÜK öncelik
+aldı (yine insana gidiyordu, ama acil işaretlenmiyordu). Bir de İngilizce bir mesaja Türkçe cevap üretildi. İki koruma
+artık test: ACİL beklenen mesaj ACİL'den düşmez, beklenmeyen mesaj otomatik cevaplanmaz (`tests/test_varyasyon.py`).
+Bu bekçilerin gerçekten kırmızı verebildiği de test ediliyor: sağlık kontrolü kapatılınca ya da her mesaj otomatiğe
+zorlanınca testler düşüyor.
 
-Kalan tek hata (#117, İngilizce kargo süresi sorusu) bilerek bırakıldı: kural tabanlı sınıflandırmanın sınırını
-gösteriyor. Yeni ifadeleri anlamak için LLM modu var.
+Bir etiket sonradan değişti: #118 hem hayvan testini hem "vegan" olup olmadığını soruyor. Veride vegan bilgisi yok, bu
+yüzden doğru davranış insana aktarmak. İlk etiket "otomatik yanıt" diyordu; gerekçesi dosyada `etiket_notu` alanında.
+
+**Bu ölçüm "sistem her mesajda güvenli davranır" demek değil.** İki bağımsız incelemede (aşağıda) uydurulmuş basit
+mesajlarla açıklar bulundu ve kapatıldı. Kural tabanlı bir sistemde yeni ifadeler her zaman yeni açık demektir. Bu
+yüzden gerçek kullanımda başlangıçta her taslak insan onayından geçmeli.
 
 ## LLM modu (opsiyonel)
 
@@ -174,8 +184,7 @@ testli (istek şekli, şema, reddetme ve hata durumları, güvenlik katmanı), a
 - Sipariş sahipliği `musteri_id` eşleşmesiyle kontrol ediliyor. Gerçekte WhatsApp/Instagram kimliğinin müşteri
   kaydına nasıl bağlandığı ayrı bir doğrulama konusu.
 - Politika metinleri (hayvan testi dahil) örnektir, şirketin beyanı değildir. Gerçek sistemde yalnız onaylı metin kullanılır.
-- `tests/varyasyonlar.json`'daki etiketler ayrı bir ajanın yargısı. Tartışmalı bir tane var: #118 "vegan" da soruyor
-  ama veride yalnız hayvan testi metni var; etiket otomatik yanıt diyor, bence bu da ürün ekibine gitmeli.
+- `tests/varyasyonlar.json`'daki etiketler ayrı bir ajanın yargısı; biri (#118) gerekçesiyle değiştirildi.
 
 ## Üretime geçerken
 
@@ -190,11 +199,14 @@ testli (istek şekli, şema, reddetme ve hata durumları, güvenlik katmanı), a
 ## Bitmeyenler ve bilinen sınırlar
 
 - LLM modu canlı API'ye karşı denenmedi (anahtar yok).
-- Kural tabanlı sınıflandırma yeni ifadelerde kırılgan (ilk ölçüm 10/20). Güvenli tarafta kalıyor ama gerçek trafikte
-  insana giden mesaj oranı yüksek olur; LLM modu ya da gerçek mesajlardan kural/örnek zenginleştirmesi gerekir.
+- Kural tabanlı sınıflandırma yeni ifadelerde kırılgan (ilk ölçüm 10/20). Gerçek trafikte yeni ifadeler yeni açık
+  demektir. LLM modu ya da gerçek mesajlardan kural ve örnek zenginleştirmesi gerekir.
+- Sağlık kelimeleri bilerek geniş tutuldu: "sivilce", "alerji", "yan etki var mı?" gibi yalnız soru soran mesajlar da
+  ACİL işaretlenir ve taslak kullanımı bırakmayı önerir. Bu yanlış alarmı, gerçek bir reaksiyonu kaçırmaya tercih ettim.
 - Konuşma geçmişi yok: her mesaj tek başına değerlendiriliyor. "Tamam, sipariş numaram 45" gibi devam mesajları
   önceki bağlamı bilmiyor.
-- İngilizce yanıtlar sipariş durumu dışında basit şablonlar.
+- Müşteri kimliği `musteri_id` olarak hazır kabul ediliyor.
+- Kargo ücreti, vegan/helal durumu ve hamilelikte kullanım gibi bilgiler veride yok; bunlar insana gidiyor.
 - Panel statik bir rapor; onay düğmeleri bir şeye bağlı değil.
 
 ## Yapay zekâ kullanımı
@@ -203,7 +215,12 @@ Görev yapay zekâ aracı kullanılarak yapılacak şekilde tasarlanmıştı; be
 tuzakları çıkardım, mimariyi ve karar kurallarını belirledim. Planı iki ayrı modele (Claude ve Codex) gözden
 geçirttim; Codex'in itirazları plana girdi (bilinmeyen ile olumsuzun ayrılması, sipariş başına yetki kontrolü,
 sağlık+spam çakışması, HTML kaçışı). Kodun parçalarını alt ajanlara yazdırdım, çıktıları testle ve taslakları tek
-tek okuyarak doğruladım, bulduğum hataları düzelttim. Varyasyon seti kuralları görmemiş ayrı bir ajan tarafından yazıldı.
+tek okuyarak doğruladım. Varyasyon seti kuralları görmemiş ayrı bir ajan tarafından yazıldı.
+
+Bitmiş kodu iki bağımsız incelemeye verdim (taze bir Claude ajanı ve Codex). İkisi de uydurulmuş mesajlarla açıklar
+buldu. Örneğin sahibi olunan bir sipariş için gelen "iptal etmek istiyorum" mesajı durum cevabıyla otomatik
+yanıtlanıyordu, "Şişli" kelimesi sağlık alarmı veriyordu, "Retinol hamilelikte uygun mu?" sorusuna cilt tipi cevabı
+dönüyordu. Bunlar kapatıldı ve her biri için regresyon testi eklendi.
 
 ## Dosya haritası
 
@@ -222,7 +239,7 @@ triage/
   pipeline.py        hepsini bağlar; güvenlik katmanını her modda uygular
   render.py          onay kuyruğu (rapor.md, panel.html) ve bilgi boşluğu raporu
 data/                mesajlar.json (verilen) + örnek sipariş/ürün/politika verisi
-tests/               97 test; golden.json, varyasyonlar.json
+tests/               175 test (82 test fonksiyonu, bir kısmı parametreli); golden.json, varyasyonlar.json
 out/                 üretilmiş çıktılar
 docs/                varyasyon setinin ilk ölçümü
 ```

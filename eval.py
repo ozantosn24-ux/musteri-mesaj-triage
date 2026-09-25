@@ -25,6 +25,16 @@ def evaluate(results: list[dict], golden: list[dict]) -> tuple[int, int, list[st
     uyumlu = 0
     uyumsuzlar: list[str] = []
 
+    # Kapsam: her beklenen id tam bir kez gelmeli; boş ya da eksik sonuç "uyumlu" sayılmaz.
+    gelen_idler = [r["id"] for r in results]
+    for i in sorted(set(golden_by_id) - set(gelen_idler)):
+        toplam += 1
+        uyumsuzlar.append(f"id={i} sonuçlarda YOK")
+    for i in sorted({i for i in gelen_idler if gelen_idler.count(i) > 1}):
+        uyumsuzlar.append(f"id={i} sonuçlarda birden fazla kez var")
+    for i in sorted(set(gelen_idler) - set(golden_by_id)):
+        uyumsuzlar.append(f"id={i} golden'da olmayan sonuç")
+
     for r in results:
         g = golden_by_id.get(r["id"])
         if g is None:
@@ -47,9 +57,13 @@ def evaluate(results: list[dict], golden: list[dict]) -> tuple[int, int, list[st
 
 
 def main() -> int:
+    # Windows konsolu cp1252: Türkçe çıktı yönlendirilince çökmesin
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser(description="results.json'u golden.json ile karşılaştırır")
-    parser.add_argument("--results", default="out/results.json")
-    parser.add_argument("--golden", default="tests/golden.json")
+    kok = Path(__file__).resolve().parent
+    parser.add_argument("--results", default=str(kok / "out" / "results.json"))
+    parser.add_argument("--golden", default=str(kok / "tests" / "golden.json"))
     args = parser.parse_args()
 
     results = _load(Path(args.results))

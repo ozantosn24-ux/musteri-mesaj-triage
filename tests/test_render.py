@@ -84,14 +84,12 @@ def test_write_reports_escapes_xss_and_has_required_sections(tmp_path):
 
     assert paths["rapor"].exists()
     assert "Onay Kuyruğu" in rapor_md
+    assert "<script>alert" not in rapor_md  # Markdown raporunda da ham HTML yok
 
     assert "P0" in panel_html
 
 
 def test_knowledge_gap_report_counterfactual():
-    pytest.importorskip("triage.pipeline")
-    pytest.importorskip("triage.classify")
-
     import json
     from pathlib import Path
 

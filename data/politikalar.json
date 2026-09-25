@@ -7,7 +7,8 @@
   },
   "iade": {
     "sure_gun": 14,
-    "hasarli_urun": "Hasarlı gelen ürünlerde fotoğraf ve sipariş numarasıyla ücretsiz değişim ya da iade yapılır."
+    "hasarli_urun": "Hasarlı gelen ürünlerde fotoğraf ve sipariş numarasıyla ücretsiz değişim ya da iade yapılır.",
+    "hasarli_urun_en": "For products that arrive damaged, we offer a free exchange or refund with a photo and your order number."
   },
   "indirim": {
     "aktif_kodlar": []
@@ -21,7 +22,8 @@
   },
   "saglik": {
     "ekip": "kalite",
-    "istenecekler": ["ürün adı", "lot/seri numarası (kutunun altında)", "cildin fotoğrafı"],
+    "istenecekler": ["ürün adı", "lot/seri numarası (kutunun altında)", "etkilenen bölgenin fotoğrafı"],
+    "istenecekler_en": ["product name", "lot/batch number (found on the bottom of the box)", "a photo of the affected area"],
     "ilk_mesaj_tr": "Ürünü kullanmayı hemen bırakmanızı rica ederiz. Şikâyetiniz sürer ya da artarsa lütfen bir sağlık profesyoneline başvurun.",
     "ilk_mesaj_en": "Please stop using the product right away. If the reaction continues or gets worse, please consult a healthcare professional."
   }

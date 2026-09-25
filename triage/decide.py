@@ -30,7 +30,39 @@ from .text import fold
 # Ürün bilgisi sorularında hangi alanın soruldığunu anlamak için anahtar kelimeler
 # (fold edilmiş metinle karşılaştırılır, bu yüzden zaten ASCII/küçük harf).
 _CILT_ANAHTAR = ("cilt", "kuru", "yagli", "karma", "hassas", "uygun")
-_HAYVAN_TESTI_ANAHTAR = ("hayvan", "test", "vegan", "cruelty")
+
+# Hamilelik/emzirme/ilaç-tedavi gibi TIBBİ uygunluk soruları cilt tipi sorusu
+# SANILMAMALI ("hamilelikte uygun mu" içinde "uygun" geçer ama bu bir cilt tipi
+# sorusu değildir) — veride yok, doktora/kaliteye devredilir.
+_TIBBI_UYGUNLUK_ANAHTAR = ("hamile", "gebe", "emzir", "bebek", "cocuk", "ilac",
+                            "tedavi", "hastalik", "pregnan", "breastfeed")
+
+# Politika sorusu alt-konuları (fold edilmiş metinle karşılaştırılır). "hayvan"
+# konusu ("hayvan"/"animal"/"cruelty") politikalar.json#hayvan_testi ile karşılanır;
+# diğerleri veride YOK, insana devredilir.
+_POLITIKA_KONU_ANAHTARLARI: dict[str, tuple[str, ...]] = {
+    "hayvan": ("hayvan", "animal", "cruelty"),
+    "vegan": ("vegan",),
+    "dermatolojik_test": ("dermatolojik",),
+    "helal": ("helal", "halal"),
+}
+
+# Sipariş DURUMU sorulduğunu gösteren kelimeler — bunlardan biri yoksa ya da
+# mesaj durum-dışı bir talep içeriyorsa, sahip olunan siparişte bile otomatik
+# yanıt VERİLMEZ (§A).
+_SIPARIS_DURUM_SOZ = ("nerede", "nerde", "durum", "ne zaman", "gelir", "gelmedi",
+                       "ulasmadi", "ulasir", "kargo", "kargoya",
+                       "where", "status", "when", "arrive", "shipped", "track")
+_SIPARIS_TALEP_SOZ = ("iptal", "adres", "eksik", "degistir", "yanlis urun",
+                       "cancel", "address", "missing", "wrong item")
+
+# Kargo ücreti soruluyor mu? (veride YOK; eklenirse otomatik auto_reply'e döner.)
+_KARGO_UCRET_ANAHTAR = ("ucret", "fee", "cost")
+
+# Fiziksel hasar kelimeleri. "hasarsız" gibi olumsuz ekli biçimler SAYILMAZ
+# (aşağıdaki regex bunları önce metinden çıkarır).
+_HASAR_KELIMELERI = ("ezik", "hasar", "kirik", "bozuk", "damaged", "broken")
+_HASAR_OLUMSUZ_EKI = re.compile(r"(?:ezik|hasar|kirik|bozuk)siz")
 
 
 @dataclass
@@ -65,15 +97,22 @@ def order_access(msg: Message, ext: Extraction, kb: KnowledgeBase) -> tuple[list
     return owned, withheld
 
 
+# "var mı"dan önceki kelime ürün kategorisi ya da iyelik ekli bir ad ise ("serumunuz") stok sorusudur.
+_URUNE_BAGLI_VAR_MI = (
+    r"\b(\w+(unuz|uniz|nuz|niz)|serum\w*|krem\w*|tonik\w*|toner|nemlendirici\w*|"
+    r"gunes kremi\w*|retinol\w*|vitamini\w*)\s+var mi"
+)
+
+
 def asked_product_fields(folded_mesaj: str) -> set[str]:
     """Katlanmış (fold edilmiş) mesaj metninde hangi ürün alanları soruluyor?
 
     reply.py da aynı fonksiyonu kullanır ki "ne soruldu" mantığı tek yerde kalsın.
     """
     fields: set[str] = set()
-    # "alkol var mı" içerik sorusudur, stok sorusu değil: içerik kelimesine bağlı "var mı"yı düşür.
-    stok_metni = re.sub(r"(alkol|paraben|parfum|koku|icerig)\w*\s+var mi", "", folded_mesaj)
-    if "var mi" in stok_metni:
+    # Stok sorusu: "stok" kelimesi ya da ÜRÜNE bağlı "var mı" ("serumunuz var mı", "tonik var mı").
+    # "peeling var mı", "paraben var mı" gibi başka bir şeye bağlı "var mı" içerik sorusudur, stok değil.
+    if "stok" in folded_mesaj or re.search(_URUNE_BAGLI_VAR_MI, folded_mesaj):
         fields.add("stokta")
     if any(k in folded_mesaj for k in _CILT_ANAHTAR):
         fields.add("cilt_tipleri")
@@ -83,6 +122,62 @@ def asked_product_fields(folded_mesaj: str) -> set[str]:
     if re.search(r"\d\s*ml\b|\bml\b", folded_mesaj):
         fields.add("hacim_ml")
     return fields
+
+
+def tibbi_uygunluk_sorusu(folded_mesaj: str) -> bool:
+    """Hamilelik/emzirme/ilaç-tedavi gibi tıbbi bir uygunluk sorusu mu?
+
+    Bu bilgi ürün verisinde YOK; cilt tipi alanıyla karıştırılmaz — kalite
+    ekibine devredilir. decide.py ve reply.py aynı kontrolü paylaşır.
+    """
+    return any(k in folded_mesaj for k in _TIBBI_UYGUNLUK_ANAHTAR)
+
+
+def politika_konulari(folded_mesaj: str) -> list[str]:
+    """Mesajda geçen politika alt-konuları (tekrarsız, sabit sırayla).
+
+    "hayvan" konusu (hayvan/animal/cruelty) politikalar.json#hayvan_testi ile
+    karşılanabilir; diğerleri (vegan, dermatolojik_test, helal) ya da genel
+    "test edildi mi" (hayvan/dermatolojik olmadan) veride YOK — insana devredilir.
+    decide.py ve reply.py aynı fonksiyonu kullanır (tek yerde tutulan mantık).
+    """
+    konular = [konu for konu, anahtarlar in _POLITIKA_KONU_ANAHTARLARI.items()
+               if any(k in folded_mesaj for k in anahtarlar)]
+    if "test" in folded_mesaj and "hayvan" not in konular and "dermatolojik_test" not in konular:
+        konular.append("test_belirsiz")
+    return konular
+
+
+def istek_fiyat_listesi(folded_mesaj: str) -> bool:
+    """Mesaj, ürün adı vermeden GENEL fiyat listesi mi istiyor?"""
+    return "fiyat listesi" in folded_mesaj
+
+
+def siparis_durum_disi_talep_kelimesi(folded_mesaj: str) -> Optional[str]:
+    """Sahip olunan bir siparişte otomatik yanıt yalnız DURUM soruluyorsa verilir.
+
+    Mesaj durum-dışı bir talep içeriyorsa (iptal/adres/eksik/değiştir/yanlış ürün)
+    eşleşen kelimeyi döndürür; hiç durum kelimesi de yoksa "durum kelimesi yok"
+    döner; ikisi de yoksa (yalnız durum soruluyorsa) None döner.
+    """
+    talep_hit = next((k for k in _SIPARIS_TALEP_SOZ if k in folded_mesaj), None)
+    if talep_hit:
+        return talep_hit
+    if not any(k in folded_mesaj for k in _SIPARIS_DURUM_SOZ):
+        return "durum kelimesi yok"
+    return None
+
+
+def kargo_ucret_soruluyor(folded_mesaj: str, policy: Optional[dict]) -> bool:
+    """Kargo ücreti mi soruluyor VE veride yok mu? (varsa otomatik auto_reply kalır.)"""
+    policy = policy or {}
+    return any(k in folded_mesaj for k in _KARGO_UCRET_ANAHTAR) and policy.get("ucret_tl") is None
+
+
+def hasarli_urun_sorusu(folded_mesaj: str) -> bool:
+    """Fiziksel hasar kelimesi geçiyor mu? "hasarsız" gibi olumsuz ekli biçim SAYILMAZ."""
+    temiz = _HASAR_OLUMSUZ_EKI.sub("", folded_mesaj)
+    return any(k in temiz for k in _HASAR_KELIMELERI)
 
 
 def _part_saglik(kb: KnowledgeBase) -> _Part:
@@ -116,16 +211,36 @@ def _part_siparis(msg: Message, ext: Extraction, kb: KnowledgeBase) -> list[_Par
         parts.append(_Part(Action.NEEDS_VERIFICATION, Priority.P1, "destek", reasons=reasons))
 
     if owned:
-        sources = [f"siparisler.json#{o['siparis_no']}" for o in owned]
-        parts.append(_Part(Action.AUTO_REPLY, Priority.P2, None, sources=sources))
+        folded = fold(msg.mesaj)
+        talep = siparis_durum_disi_talep_kelimesi(folded)
+        if talep:
+            # Durum-dışı talep (iptal/adres/eksik/değiştir vb.) OTOMATİK yanıtlanmaz.
+            parts.append(_Part(Action.HUMAN_ESCALATION, Priority.P1, "destek",
+                                reasons=[f"sipariş hakkında durum dışı talep ({talep}) → insan"]))
+        else:
+            # "durum" alanı bilinmiyorsa uydurulmaz; o sipariş NEEDS_VERIFICATION'a gider.
+            bilinen = [o for o in owned if o.get("durum") is not None]
+            bilinmeyen = [o for o in owned if o.get("durum") is None]
+            if bilinen:
+                sources = [f"siparisler.json#{o['siparis_no']}" for o in bilinen]
+                parts.append(_Part(Action.AUTO_REPLY, Priority.P2, None, sources=sources))
+            if bilinmeyen:
+                missing = [f"siparis:{o['siparis_no']}:durum" for o in bilinmeyen]
+                parts.append(_Part(Action.NEEDS_VERIFICATION, Priority.P2, "destek", missing=missing))
 
     return parts
 
 
-def _part_kargo(kb: KnowledgeBase) -> _Part:
-    if kb.get_policy("kargo"):
-        return _Part(Action.AUTO_REPLY, Priority.P3, None, sources=["politikalar.json#kargo"])
-    return _Part(Action.HUMAN_ESCALATION, Priority.P3, "destek", missing=["politika:kargo"])
+def _part_kargo(msg: Message, kb: KnowledgeBase) -> _Part:
+    folded = fold(msg.mesaj)
+    policy = kb.get_policy("kargo")
+    if not policy:
+        return _Part(Action.HUMAN_ESCALATION, Priority.P3, "destek", missing=["politika:kargo"])
+    if kargo_ucret_soruluyor(folded, policy):
+        # Taşıyıcı/süre biliniyor, ücret veride yok: kısmen paylaşılır + devredilir.
+        return _Part(Action.HUMAN_ESCALATION, Priority.P3, "destek",
+                      sources=["politikalar.json#kargo"], missing=["politika:kargo:ucret"])
+    return _Part(Action.AUTO_REPLY, Priority.P3, None, sources=["politikalar.json#kargo"])
 
 
 def _part_fiyat(msg: Message, ext: Extraction, kb: KnowledgeBase) -> list[_Part]:
@@ -145,7 +260,7 @@ def _part_fiyat(msg: Message, ext: Extraction, kb: KnowledgeBase) -> list[_Part]
     # Ürün adı geçmiyor: fiyat listesi mi isteniyor?
     folded = fold(msg.mesaj)
     fiyat_listesi = kb.get_policy("fiyat_listesi") or {}
-    if "fiyat listesi" in folded and fiyat_listesi.get("paylasilabilir"):
+    if istek_fiyat_listesi(folded) and fiyat_listesi.get("paylasilabilir"):
         sources = ["politikalar.json#fiyat_listesi"] + [f"urunler.json#{u['slug']}" for u in kb.products()]
         return [_Part(Action.AUTO_REPLY, Priority.P3, None, sources=sources,
                        reasons=["fiyat listesi paylaşılabilir"])]
@@ -172,13 +287,32 @@ def _part_urun_bilgisi(msg: Message, ext: Extraction, kb: KnowledgeBase) -> list
         return [_Part(Action.NEEDS_VERIFICATION, Priority.P3, "destek",
                        reasons=["hangi ürün soruluyor belirsiz"])]
 
-    asked = asked_product_fields(fold(msg.mesaj))
+    folded = fold(msg.mesaj)
+    if tibbi_uygunluk_sorusu(folded):
+        # "Hamilelikte uygun mu" bir cilt tipi sorusu DEĞİL, tıbbi bir sorudur;
+        # veride yok, ürün ekibi değil kalite ekibi devralır.
+        return [_Part(Action.HUMAN_ESCALATION, Priority.P2, "kalite",
+                       reasons=["tıbbi/hamilelik uygunluğu veride yok → kalite ekibi"])]
+
+    asked = asked_product_fields(folded)
     parts: list[_Part] = []
     for u in urunler:
-        eksik_alanlar = [alan for alan in asked if u.get(alan) is None]
-        if eksik_alanlar:
+        if not asked:
+            # Ürün eşleşti ama tanınan bir alan (stok/cilt/alkol/hacim) soruluyor
+            # değil (ör. "paraben var mı?", "hamilelikte..." gibi veride olmayan
+            # bir soru) — uydurulmaz, ürün ekibine devredilir.
             parts.append(_Part(Action.HUMAN_ESCALATION, Priority.P3, "urun",
-                                missing=[f"urun:{u['slug']}:{alan}" for alan in eksik_alanlar]))
+                                reasons=["sorulan ürün bilgisi veride yok/tanınmadı → ürün ekibi"]))
+            continue
+        eksik_alanlar = [alan for alan in asked if u.get(alan) is None]
+        bilinen_alanlar = [alan for alan in asked if alan not in eksik_alanlar]
+        if eksik_alanlar:
+            # Bilinen alan varsa kaynağı da eklenir (kısmen yanıtlanan sorunun
+            # kanıtı defterde de görünsün).
+            kaynaklar = [f"urunler.json#{u['slug']}"] if bilinen_alanlar else []
+            parts.append(_Part(Action.HUMAN_ESCALATION, Priority.P3, "urun",
+                                missing=[f"urun:{u['slug']}:{alan}" for alan in eksik_alanlar],
+                                sources=kaynaklar))
         else:
             parts.append(_Part(Action.AUTO_REPLY, Priority.P3, None,
                                 sources=[f"urunler.json#{u['slug']}"]))
@@ -187,14 +321,34 @@ def _part_urun_bilgisi(msg: Message, ext: Extraction, kb: KnowledgeBase) -> list
 
 def _part_politika(msg: Message, kb: KnowledgeBase) -> _Part:
     folded = fold(msg.mesaj)
-    if not any(k in folded for k in _HAYVAN_TESTI_ANAHTAR):
-        # Spesifikasyon yalnız hayvan-testi alt-durumunu tanımlıyor; başka
-        # politika sorusu tanımsız kalır, "bilinmiyor" gibi insana devredilir.
+    konular = politika_konulari(folded)
+    if not konular:
+        # Hiçbir tanınan alt-konu yok; "bilinmiyor" gibi insana devredilir.
         return _Part(Action.HUMAN_ESCALATION, Priority.P3, "destek",
                       reasons=["tanımlanmayan politika sorusu"])
-    if kb.get_policy("hayvan_testi"):
-        return _Part(Action.AUTO_REPLY, Priority.P3, None, sources=["politikalar.json#hayvan_testi"])
-    return _Part(Action.HUMAN_ESCALATION, Priority.P3, "destek", missing=["politika:hayvan_testi"])
+
+    diger_konular = [k for k in konular if k != "hayvan"]
+
+    if "hayvan" not in konular:
+        # Yalnız kapsanmayan konu(lar) soruluyor (vegan/dermatolojik/helal/genel test).
+        return _Part(Action.HUMAN_ESCALATION, Priority.P3, "destek",
+                      missing=[f"politika:{k}" for k in konular],
+                      reasons=[f"kapsanmayan politika konusu: {k}" for k in konular])
+
+    if not kb.get_policy("hayvan_testi"):
+        return _Part(Action.HUMAN_ESCALATION, Priority.P3, "destek",
+                      missing=["politika:hayvan_testi"] + [f"politika:{k}" for k in diger_konular],
+                      reasons=[f"kapsanmayan politika konusu: {k}" for k in diger_konular])
+
+    if diger_konular:
+        # Hayvan testi metni paylaşılabilir AMA mesaj kapsanmayan başka bir
+        # konu da soruyor (ör. vegan) — o kısım insana devredilir.
+        return _Part(Action.HUMAN_ESCALATION, Priority.P3, "destek",
+                      sources=["politikalar.json#hayvan_testi"],
+                      missing=[f"politika:{k}" for k in diger_konular],
+                      reasons=[f"kapsanmayan politika konusu: {k}" for k in diger_konular])
+
+    return _Part(Action.AUTO_REPLY, Priority.P3, None, sources=["politikalar.json#hayvan_testi"])
 
 
 def _merge(parts: list[_Part], extra_reasons: list[str]) -> Decision:
@@ -233,9 +387,14 @@ def decide(msg: Message, ext: Extraction, kb: KnowledgeBase) -> Decision:
     # SPAM istisnası: sağlık şikâyeti varsa spam görmezden gelinir. Bu ÖNEMLİ,
     # çünkü QUARANTINE, HUMAN_ESCALATION'dan daha sert sayılıyor (ACTION_SEVERITY);
     # istisna olmasaydı bir sağlık şikâyeti "spam" etiketiyle sessizce yanıtsız kalabilirdi.
+    # Aynı mantık BİLİNMİYOR dışında herhangi bir GERÇEK niyet için de geçerli:
+    # spam + gerçek talep varsa karantinaya atılıp sessizce kaybolmaz, insana gider.
     if Intent.SPAM in ext.intents:
         if Intent.SAGLIK_SIKAYETI in ext.intents:
             extra_reasons.append("spam şüphesi var ama sağlık şikâyeti öncelikli")
+        elif set(ext.intents) - {Intent.SPAM, Intent.BILINMIYOR}:
+            parts.append(_Part(Action.HUMAN_ESCALATION, Priority.P3, "destek",
+                                reasons=["spam işareti var ama gerçek bir talep de var → insan"]))
         else:
             parts.append(_Part(Action.QUARANTINE, Priority.P3, None))
 
@@ -246,7 +405,7 @@ def decide(msg: Message, ext: Extraction, kb: KnowledgeBase) -> Decision:
     if Intent.SIPARIS_DURUMU in ext.intents:
         parts.extend(_part_siparis(msg, ext, kb))
     if Intent.KARGO_BILGISI in ext.intents:
-        parts.append(_part_kargo(kb))
+        parts.append(_part_kargo(msg, kb))
     if Intent.FIYAT in ext.intents:
         parts.extend(_part_fiyat(msg, ext, kb))
     if Intent.INDIRIM in ext.intents:

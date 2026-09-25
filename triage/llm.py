@@ -5,8 +5,8 @@ metni) ÜRETMEZ ve GÖRMEZ, yanıt taslağı yazmaz. Çıktı JSON şema ile do�
 geçersiz/eksik/refuse/hata durumunda kural tabanlı classify()'a düşer (`llm_fallback`
 gerekçesiyle) — pipeline.py'nin güvenlik katmanı bu düşüşten SONRA da aynen uygulanır.
 
-`anthropic` paketi bu makinede KURULU DEĞİL: modül seviyesinde import edilmez, yalnız
-`make_extractor()` içinde tembel (lazy) import edilir.
+`anthropic` opsiyonel bir bağımlılıktır: modül seviyesinde import edilmez, yalnız
+`make_extractor()` içinde tembel (lazy) import edilir; paket yoksa sistem kural tabanlı çalışır.
 """
 from __future__ import annotations
 
@@ -72,7 +72,8 @@ class LLMExtractor:
         except _FallbackNeeded as exc:
             return self._fallback(msg, kb, str(exc))
         except Exception as exc:  # SDK/ağ hatası, beklenmeyen şekil vb. — kör uygulama yok
-            return self._fallback(msg, kb, f"beklenmeyen hata ({exc})")
+            # Hata metni rapora yazılmaz (sağlayıcı ayrıntısı sızabilir); yalnız hata türü.
+            return self._fallback(msg, kb, f"beklenmeyen hata ({type(exc).__name__})")
 
     def _extract(self, msg: Message, kb: KnowledgeBase) -> Extraction:
         slugs = list(kb.product_aliases().keys())
@@ -96,27 +97,23 @@ class LLMExtractor:
         except (json.JSONDecodeError, TypeError, ValueError):
             raise _FallbackNeeded("JSON ayrıştırılamadı")
 
-        dil = data.get("dil") if isinstance(data, dict) else None
+        # Şemayı yerelde de tam doğrula: anahtarlar, tipler, enum değerleri. İhlal = kurallara düş.
+        if not isinstance(data, dict) or set(data) != {"dil", "intents", "urun"}:
+            raise _FallbackNeeded("şema ihlali (anahtarlar)")
+        dil, raw_intents, raw_urun = data["dil"], data["intents"], data["urun"]
         if dil not in ("tr", "en"):
-            raise _FallbackNeeded(f"geçersiz dil '{dil}'")
+            raise _FallbackNeeded("şema ihlali (dil)")
+        if not isinstance(raw_intents, list) or not isinstance(raw_urun, list):
+            raise _FallbackNeeded("şema ihlali (tip)")
+        gecerli = {i.value for i in Intent}
+        if not raw_intents or any(r not in gecerli for r in raw_intents):
+            raise _FallbackNeeded("şema ihlali (niyet)")
+        intents: list[Intent] = list(dict.fromkeys(Intent(r) for r in raw_intents))
 
         notlar: list[str] = []
-
-        intents: list[Intent] = []
-        for raw in data.get("intents") or []:
-            try:
-                intent = Intent(raw)
-            except ValueError:
-                notlar.append(f"bilinmeyen niyet '{raw}' atıldı")
-                continue
-            if intent not in intents:
-                intents.append(intent)
-        if not intents:
-            raise _FallbackNeeded("geçerli niyet yok")
-
         known_slugs = kb.product_aliases()
         urun: list[str] = []
-        for raw in data.get("urun") or []:
+        for raw in raw_urun:
             if raw in known_slugs:
                 if raw not in urun:
                     urun.append(raw)
@@ -145,7 +142,7 @@ def make_extractor() -> Optional[LLMExtractor]:
     if not (os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AUTH_TOKEN")):
         return None
     try:
-        import anthropic  # type: ignore  # yalnız burada, opsiyonel bağımlılık — bu makinede KURULU DEĞİL
+        import anthropic  # type: ignore  # opsiyonel bağımlılık, yalnız burada import edilir
     except ImportError:
         return None
     model = os.environ.get("LLM_MODEL", "claude-opus-5")
