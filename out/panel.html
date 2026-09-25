@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Müşteri Mesajı Onay Kuyruğu</title>
+<style>
+:root {
+  --bg: #f5f6f8; --fg: #1f2430; --muted: #5f6368; --card-bg: #ffffff;
+  --border: #e2e5ea; --accent: #2563eb; --radius: 10px;
+  --p0-bg: #fdecea; --p0-fg: #b3261e;
+  --p1-bg: #fff4e0; --p1-fg: #8a5200;
+  --p2-bg: #e8f0fe; --p2-fg: #1d4ed8;
+  --p3-bg: #f1f3f4; --p3-fg: #5f6368;
+  --danger-bg: #fdecea; --danger-fg: #b3261e; --danger-border: #f6c4c0;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14161a; --fg: #e7e9ee; --muted: #a0a4ad; --card-bg: #1d2026; --border: #2b2f37; --accent: #7ea6ff;
+    --p0-bg: #3a1f1d; --p0-fg: #ff8a80;
+    --p1-bg: #3a2c12; --p1-fg: #ffcc80;
+    --p2-bg: #182842; --p2-fg: #8ab4ff;
+    --p3-bg: #23262c; --p3-fg: #b7bac1;
+    --danger-bg: #3a1f1d; --danger-fg: #ff8a80; --danger-border: #5c2b28;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 0 12px 32px; background: var(--bg); color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+}
+.wrap { max-width: 880px; margin: 0 auto; }
+header.top { padding: 24px 0 8px; }
+h1 { font-size: 1.4rem; margin: 0 0 4px; }
+.subtitle { color: var(--muted); font-size: 0.9rem; margin: 0; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin: 16px 0; }
+.kpi { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; text-align: center; }
+.kpi .n { font-size: 1.25rem; font-weight: 700; display: block; }
+.kpi .l { font-size: 0.72rem; color: var(--muted); }
+.banner { background: var(--danger-bg); border: 1px solid var(--danger-border); color: var(--danger-fg);
+  border-radius: var(--radius); padding: 12px 14px; margin: 16px 0; font-size: 0.9rem; }
+.banner strong { display: block; margin-bottom: 4px; }
+.banner ul { margin: 4px 0 0 18px; padding: 0; }
+.gap { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin: 16px 0; font-size: 0.9rem; }
+.gap ul { margin: 6px 0 0 18px; padding: 0; }
+.section-title { font-size: 1rem; margin: 24px 0 8px; }
+.card { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 14px; margin-bottom: 12px; overflow-wrap: anywhere; word-break: break-word; }
+.card-head { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 8px; }
+.badge { font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+.badge-P0 { background: var(--p0-bg); color: var(--p0-fg); }
+.badge-P1 { background: var(--p1-bg); color: var(--p1-fg); }
+.badge-P2 { background: var(--p2-bg); color: var(--p2-fg); }
+.badge-P3 { background: var(--p3-bg); color: var(--p3-fg); }
+.chip { font-size: 0.72rem; background: var(--bg); border: 1px solid var(--border); border-radius: 999px;
+  padding: 2px 8px; color: var(--muted); }
+.meta { font-size: 0.78rem; color: var(--muted); margin-left: auto; }
+.label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); margin: 8px 0 2px; }
+.msg, .draft { background: var(--bg); border-left: 3px solid var(--border); padding: 8px 10px; border-radius: 6px;
+  margin: 4px 0 6px; font-size: 0.9rem; white-space: pre-wrap; }
+.draft { border-left-color: var(--accent); }
+details { margin-top: 8px; font-size: 0.85rem; }
+details summary { cursor: pointer; color: var(--accent); }
+details ul { margin: 6px 0 0 18px; padding: 0; }
+.actions { display: flex; gap: 8px; margin-top: 10px; }
+button { border: 1px solid var(--border); background: var(--card-bg); color: var(--muted); border-radius: 6px;
+  padding: 6px 12px; font-size: 0.85rem; cursor: not-allowed; }
+button[disabled] { opacity: 0.6; }
+@media (max-width: 480px) {
+  .meta { margin-left: 0; width: 100%; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>Müşteri Mesajı Onay Kuyruğu</h1>
+    <p class="subtitle">Üretim: 2026-09-25 14:44 · Veriler VARSAYIM etiketli örnek veridir</p>
+  </header>
+  <div class="kpis"><div class="kpi"><span class="n">15</span><span class="l">Toplam mesaj</span></div><div class="kpi"><span class="n">%60</span><span class="l">Otomatik yanıt oranı</span></div><div class="kpi"><span class="n">5</span><span class="l">Doğrulama / insan gerekli</span></div><div class="kpi"><span class="n">1</span><span class="l">P0 (acil)</span></div><div class="kpi"><span class="n">1</span><span class="l">Karantina</span></div></div>
+  <div class="banner"><strong>P0 — acil, sağlık ile ilgili 1 mesaj</strong><ul><li>#4 — Dün aldığım serumu kullandım, yüzüm yandı ve kızardı. Ne yapmalıyım?</li></ul></div>
+  <div class="gap"><div class="section-title" style="margin-top:0">Bilgi tabanı boşlukları</div><p>Otomatik yanıt oranı: <strong>%60 → %67</strong> (varsayımsal tahmin)</p><ul><li><code>urun:tonik:alkol_icerir</code> → mesajlar: #13</li></ul></div>
+  <div class="section-title">Kuyruk</div>
+  <article class="card">
+  <div class="card-head">
+    <span class="badge badge-P0">P0</span>
+    <span class="chip">instagram</span>
+    <span class="chip">İnsana aktarıldı</span>
+    <span class="chip">kalite</span>
+    <span class="chip">saglik_sikayeti</span>
+    <span class="meta">#4 · müşteri 14</span>
+  </div>
+  <div class="label">Mesaj</div>
+  <div class="msg">Dün aldığım serumu kullandım, yüzüm yandı ve kızardı. Ne yapmalıyım?</div>
+  <div class="label">Taslak yanıt</div>
+  <div class="draft">Merhaba,<br><br>Ürünü kullanmayı hemen bırakmanızı rica ederiz. Şikâyetiniz sürer ya da artarsa lütfen bir sağlık profesyoneline başvurun. Kalite ekibimiz en kısa sürede sizinle iletişime geçecek. Bize şu bilgileri paylaşabilir misiniz: ürün adı, lot/seri numarası (kutunun altında), cildin fotoğrafı?<br><br>İyi günler dileriz.</div>
+  <details><summary>Gerekçe ve kaynaklar</summary><ul><li>kural: sağlık anahtar kelimesi &#x27;yand&#x27;</li><li>politikalar.json#saglik</li></ul></details>
+  <div class="actions">
+    <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Onayla</button>
+    <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Düzenle</button>
+  </div>
+</article>
+<article class="card">
+  <div class="card-head">
+    <span class="badge badge-P1">P1</span>
+    <span class="chip">whatsapp</span>
+    <span class="chip">Doğrulama gerekli</span>
+    <span class="chip">destek</span>
+    <span class="chip">siparis_durumu</span>
+    <span class="meta">#1 · müşteri 7</span>
+  </div>
+  <div class="label">Mesaj</div>
+  <div class="msg">Merhaba, 12 numaralı siparişim nerede? Ne zaman kargoya verilir?</div>
+  <div class="label">Taslak yanıt</div>
+  <div class="draft">Merhaba,<br><br>Güvenlik nedeniyle sipariş bilgilerini yalnızca sipariş sahibiyle paylaşabiliyoruz. Sipariş numarasını ve o siparişte kullanılan telefon/e-posta bilgisini teyit edebilir misiniz?<br><br>İyi günler dileriz.</div>
+  <details><summary>Gerekçe ve kaynaklar</summary><ul><li>kural: sipariş no 12 (&#x27;numaralı&#x27; kalıbı)</li><li>sipariş 12 bu müşteriye ait değil; bilgi paylaşılmadı</li></ul></details>
+  <div class="actions">
+    <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Onayla</button>
+    <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Düzenle</button>
+  </div>
+</article>
+<article class="card">
+  <div class="card-head">
+    <span class="badge badge-P1">P1</span>
+    <span class="chip">whatsapp</span>
+    <span class="chip">Doğrulama gerekli</span>
+    <span class="chip">destek</span>
+    <span class="chip">siparis_durumu</span>
+    <span class="meta">#3 · müşteri 22</span>
+  </div>
+  <div class="label">Mesaj</div>
+  <div class="msg">9999 numaralı siparişim hâlâ elime ulaşmadı, kontrol eder misiniz?</div>
+  <div class="label">Taslak yanıt</div>
+  <div class="draft">Merhaba,<br><br>Güvenlik nedeniyle sipariş bilgilerini yalnızca sipariş sahibiyle paylaşabiliyoruz. Sipariş numarasını ve o siparişte kullanılan telefon/e-posta bilgisini teyit edebilir misiniz?<br><br>İyi günler dileriz.</div>
+  <details><summary>Gerekçe ve kaynaklar</summary><ul><li>kural: sipariş no 9999 (&#x27;numaralı&#x27; kalıbı)</li><li>sipariş 9999 bulunamadı</li></ul></details>
+  <div class="actions">
+    <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Onayla</button>
+    <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Düzenle</button>
+  </div>
+</article>
+<article class="card">
+  <div class="card-head">
+    <span class="badge badge-P1">P1</span>
+    <span class="chip">whatsapp</span>
+    <span class="chip">İnsana aktarıldı</span>
+    <span class="chip">iade</span>
+    <span class="chip">iade_hasar</span>
+    <span class="meta">#5 · müşteri 18</span>
+  </div>
+  <div class="label">Mesaj</div>
+  <div class="msg">Kutu ezik geldi, ürünü iade etmek istiyorum.</div>
+  <div class="label">Taslak yanıt</div>
+  <div class="draft">Merhaba,<br><br>Yaşadığınız sorun için üzgünüz. Hasarlı gelen ürünlerde fotoğraf ve sipariş numarasıyla ücretsiz değişim ya da iade yapılır. Ürünün fotoğrafını ve sipariş numaranızı paylaşabilir misiniz?<br><br>İyi günler dileriz.</div>
+  <details><summary>Gerekçe ve kaynaklar</summary><ul><li>kural: iade/hasar anahtar kelimesi &#x27;iade&#x27;</li><li>politikalar.json#iade</li></ul></details>
+  <div class="actions">
+    <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Onayla</button>
+    <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Düzenle</button>
+  </div>
+</article>
+<article class="card">
+  <div class="card-head">
+    <span class="badge badge-P2">P2</span>
+    <span class="chip">instagram</span>
+    <span class="chip">Otomatik yanıt</span>
+    <span class="chip">—</span>
+    <span class="chip">siparis_durumu</span>
+    <span class="meta">#2 · müşteri 5</span>
+  </div>
+  <div class="label">Mesaj</div>
+  <div class="msg">5 numaralı siparişimin durumu nedir acaba?</div>
+  <div class="label">Taslak yanıt</div>
+  <div class="draft">Merhaba,<br><br>5 numaralı siparişiniz kargoda. Kargo firması: Yurtiçi Kargo. Takip numarası: YK3000000005. Kargoya veriliş tarihi: 24.09.2026. Tahmini varış tarihi: 26.09.2026.<br><br>İyi günler dileriz.</div>
+  <details><summary>Gerekçe ve kaynaklar</summary><ul><li>kural: sipariş no 5 (&#x27;numaralı&#x27; kalıbı)</li><li>siparisler.json#5</li></ul></details>
+  <div class="actions">
+    <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Onayla</button>
+    <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Düzenle</button>
+  </div>
+</article>
+<article class="card">
+  <div class="card-head">
+    <span class="badge badge-P2">P2</span>
+    <span class="chip">instagram</span>
+    <span class="chip">Otomatik yanıt</span>
+    <span class="chip">—</span>
+    <span class="chip">siparis_durumu</span>
+    <span class="meta">#6 · müşteri 3</span>
+  </div>
+  <div class="label">Mesaj</div>
+  <div class="msg">Hi, where is my order #3? It has been a week.</div>
+  <div class="label">Taslak yanıt</div>
+  <div class="draft">Hello,<br><br>Order #3 is on the way. Carrier: Yurtiçi Kargo. Tracking number: YK3000000003. Shipped on: 2026-09-24. Estimated delivery: 2026-09-26.<br><br>Best regards.</div>
+  <details><summary>Gerekçe ve kaynaklar</summary><ul><li>kural: sipariş no 3 (&#x27;order&#x27; kalıbı)</li><li>siparisler.json#3</li></ul></details>
+  <div class="actions">
+    <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Onayla</button>
+    <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Düzenle</button>
+  </div>
+</article>
+<article class="card">
+  <div class="card-head">
+    <span class="badge badge-P2">P2</span>
+    <span class="chip">whatsapp</span>
+    <span class="chip">Otomatik yanıt</span>
+    <span class="chip">—</span>
+    <span class="chip">fiyat</span><span class="chip">siparis_durumu</span>
+    <span class="meta">#8 · müşteri 4</span>
+  </div>
+  <div class="label">Mesaj</div>
+  <div class="msg">Güneş kreminin fiyatı ne kadar? Bir de 4 numaralı siparişim ne zaman gelir?</div>
+  <div class="label">Taslak yanıt</div>
+  <div class="draft">Merhaba,<br><br>4 numaralı siparişiniz hazırlanıyor. Tahmini kargoya veriliş tarihi: 26.09.2026. Güneş Kremi SPF50: 450 TL.<br><br>İyi günler dileriz.</div>
+  <details><summary>Gerekçe ve kaynaklar</summary><ul><li>kural: sipariş no 4 (&#x27;numaralı&#x27; kalıbı)</li><li>kural: fiyat anahtar kelimesi</li><li>siparisler.json#4</li><li>urunler.json#gunes_kremi_spf50</li></ul></details>
+  <div class="actions">
+    <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Onayla</button>
+    <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Düzenle</button>
+  </div>
+</article>
+<article class="card">
+  <div class="card-head">
+    <span class="badge badge-P3">P3</span>
+    <span class="chip">instagram</span>
+    <span class="chip">Karantina</span>
+    <span class="chip">—</span>
+    <span class="chip">spam</span>
+    <span class="meta">#7 · müşteri 27</span>
+  </div>
+  <div class="label">Mesaj</div>
+  <div class="msg">Takipçi kasmak ister misiniz? 🔥 %100 organik takipçi: bit.ly/takip-artir</div>
+  <div class="label">Taslak yanıt</div>
+  <div class="draft"><em>yanıt verilmez</em></div>
+  <details><summary>Gerekçe ve kaynaklar</summary><ul><li>kural: link + tanıtım kelimesi → spam</li></ul></details>
+  <div class="actions">
+    <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Onayla</button>
+    <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Düzenle</button>
+  </div>
+</article>
+<article class="card">
+  <div class="card-head">
+    <span class="badge badge-P3">P3</span>
+    <span class="chip">whatsapp</span>
+    <span class="chip">Otomatik yanıt</span>
+    <span class="chip">—</span>
+    <span class="chip">urun_bilgisi</span>
+    <span class="meta">#9 · müşteri 1</span>
+  </div>
+  <div class="label">Mesaj</div>
+  <div class="msg">Retinol serumunuz var mı? Kuru ciltte kullanılır mı?</div>
+  <div class="label">Taslak yanıt</div>
+  <div class="draft">Merhaba,<br><br>Retinol Serum stoklarımızda var. Retinol Serum, normal, kuru, karma cilt tipleri için uygundur.<br><br>İyi günler dileriz.</div>
+  <details><summary>Gerekçe ve kaynaklar</summary><ul><li>kural: ürün eşleşti + &#x27;var mi&#x27;</li><li>urunler.json#retinol_serum</li></ul></details>
+  <div class="actions">
+    <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Onayla</button>
+    <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Düzenle</button>
+  </div>
+</article>
+<article class="card">
+  <div class="card-head">
+    <span class="badge badge-P3">P3</span>
+    <span class="chip">instagram</span>
+    <span class="chip">Otomatik yanıt</span>
+    <span class="chip">—</span>
+    <span class="chip">fiyat</span>
+    <span class="meta">#10 · müşteri 2</span>
+  </div>
+  <div class="label">Mesaj</div>
+  <div class="msg">Nemlendirici krem ne kadar?</div>
+  <div class="label">Taslak yanıt</div>
+  <div class="draft">Merhaba,<br><br>Nemlendirici Krem: 380 TL.<br><br>İyi günler dileriz.</div>
+  <details><summary>Gerekçe ve kaynaklar</summary><ul><li>kural: fiyat anahtar kelimesi</li><li>urunler.json#nemlendirici_krem</li></ul></details>
+  <div class="actions">
+    <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Onayla</button>
+    <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Düzenle</button>
+  </div>
+</article>
+<article class="card">
+  <div class="card-head">
+    <span class="badge badge-P3">P3</span>
+    <span class="chip">whatsapp</span>
+    <span class="chip">Otomatik yanıt</span>
+    <span class="chip">—</span>
+    <span class="chip">urun_bilgisi</span>
+    <span class="meta">#11 · müşteri 8</span>
+  </div>
+  <div class="label">Mesaj</div>
+  <div class="msg">C vitamini serumu hangi cilt tipine uygundur?</div>
+  <div class="label">Taslak yanıt</div>
+  <div class="draft">Merhaba,<br><br>C Vitamini Serumu, normal, karma, yağlı cilt tipleri için uygundur.<br><br>İyi günler dileriz.</div>
+  <details><summary>Gerekçe ve kaynaklar</summary><ul><li>kural: ürün eşleşti + &#x27;cilt&#x27;</li><li>urunler.json#c_vitamini_serum</li></ul></details>
+  <div class="actions">
+    <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Onayla</button>
+    <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Düzenle</button>
+  </div>
+</article>
+<article class="card">
+  <div class="card-head">
+    <span class="badge badge-P3">P3</span>
+    <span class="chip">instagram</span>
+    <span class="chip">Otomatik yanıt</span>
+    <span class="chip">—</span>
+    <span class="chip">kargo_bilgisi</span>
+    <span class="meta">#12 · müşteri 6</span>
+  </div>
+  <div class="label">Mesaj</div>
+  <div class="msg">Siparişler hangi kargo firmasıyla gönderiliyor?</div>
+  <div class="label">Taslak yanıt</div>
+  <div class="draft">Merhaba,<br><br>Siparişleriniz Yurtiçi Kargo ile gönderiliyor. Teslimat süresi genellikle 1-3 iş günü.<br><br>İyi günler dileriz.</div>
+  <details><summary>Gerekçe ve kaynaklar</summary><ul><li>kural: kargo bilgisi kalıbı &#x27;hangi kargo&#x27;</li><li>politikalar.json#kargo</li></ul></details>
+  <div class="actions">
+    <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Onayla</button>
+    <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Düzenle</button>
+  </div>
+</article>
+<article class="card">
+  <div class="card-head">
+    <span class="badge badge-P3">P3</span>
+    <span class="chip">whatsapp</span>
+    <span class="chip">İnsana aktarıldı</span>
+    <span class="chip">urun</span>
+    <span class="chip">urun_bilgisi</span>
+    <span class="meta">#13 · müşteri 9</span>
+  </div>
+  <div class="label">Mesaj</div>
+  <div class="msg">Tonik 200 ml mi? İçeriğinde alkol var mı?</div>
+  <div class="label">Taslak yanıt</div>
+  <div class="draft">Merhaba,<br><br>Tonik 200 ml&#x27;dir. Tonik ürününün alkol içeriği bilgisini ürün ekibimizden teyit edip size döneceğiz.<br><br>İyi günler dileriz.</div>
+  <details><summary>Gerekçe ve kaynaklar</summary><ul><li>kural: ürün eşleşti + &#x27;var mi&#x27;</li></ul></details>
+  <div class="actions">
+    <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Onayla</button>
+    <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Düzenle</button>
+  </div>
+</article>
+<article class="card">
+  <div class="card-head">
+    <span class="badge badge-P3">P3</span>
+    <span class="chip">instagram</span>
+    <span class="chip">Otomatik yanıt</span>
+    <span class="chip">—</span>
+    <span class="chip">fiyat</span><span class="chip">indirim</span>
+    <span class="meta">#14 · müşteri 10</span>
+  </div>
+  <div class="label">Mesaj</div>
+  <div class="msg">İndirim kodunuz var mı, fiyat listesi paylaşır mısınız?</div>
+  <div class="label">Taslak yanıt</div>
+  <div class="draft">Merhaba,<br><br>Güncel fiyat listemiz: Güneş Kremi SPF50: 450 TL; Retinol Serum: 650 TL; Nemlendirici Krem: 380 TL; C Vitamini Serumu: 590 TL; Tonik: 320 TL. Şu an aktif bir indirim kodumuz bulunmuyor.<br><br>İyi günler dileriz.</div>
+  <details><summary>Gerekçe ve kaynaklar</summary><ul><li>kural: fiyat anahtar kelimesi</li><li>kural: indirim anahtar kelimesi &#x27;indirim&#x27;</li><li>fiyat listesi paylaşılabilir</li><li>aktif kod yok, kod uydurulmadı</li><li>politikalar.json#fiyat_listesi</li><li>urunler.json#gunes_kremi_spf50</li><li>urunler.json#retinol_serum</li><li>urunler.json#nemlendirici_krem</li><li>urunler.json#c_vitamini_serum</li><li>urunler.json#tonik</li><li>politikalar.json#indirim</li></ul></details>
+  <div class="actions">
+    <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Onayla</button>
+    <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Düzenle</button>
+  </div>
+</article>
+<article class="card">
+  <div class="card-head">
+    <span class="badge badge-P3">P3</span>
+    <span class="chip">whatsapp</span>
+    <span class="chip">Otomatik yanıt</span>
+    <span class="chip">—</span>
+    <span class="chip">politika</span>
+    <span class="meta">#15 · müşteri 11</span>
+  </div>
+  <div class="label">Mesaj</div>
+  <div class="msg">Merhaba, ürünleriniz hayvanlar üzerinde test ediliyor mu?</div>
+  <div class="label">Taslak yanıt</div>
+  <div class="draft">Merhaba,<br><br>Ürünlerimiz ve hammaddelerimiz hayvanlar üzerinde test edilmemektedir.<br><br>İyi günler dileriz.</div>
+  <details><summary>Gerekçe ve kaynaklar</summary><ul><li>kural: politika anahtar kelimesi &#x27;hayvan&#x27;</li><li>politikalar.json#hayvan_testi</li></ul></details>
+  <div class="actions">
+    <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Onayla</button>
+    <button type="button" disabled title="Demo: gerçek sistemde onay akışına bağlanır">Düzenle</button>
+  </div>
+</article>
+</div>
+</body>
+</html>

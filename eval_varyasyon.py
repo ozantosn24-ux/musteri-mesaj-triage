@@ -1,8 +1,9 @@
-"""Görülmemiş mesajlarla ölçüm.
+"""Varyasyon setiyle ölçüm.
 
 tests/varyasyonlar.json'daki 20 mesaj, kuralları GÖRMEMİŞ ayrı bir yapay zekâ ajanı tarafından yazıldı ve
-beklenen davranışla etiketlendi. Kurallar bu mesajlara göre ayarlanmadı; bu betik kural tabanlı
-sınıflandırmanın yeni ifadelere ne kadar dayandığını dürüstçe gösterir.
+beklenen davranışla etiketlendi. İlk ölçüm kurallar bu mesajları hiç görmeden yapıldı (10/20,
+docs/varyasyon_ilk_olcum.md). Ardından genel kurallar düzeltildi; bu yüzden bugünkü sonuç artık
+"görülmemiş veri" ölçümü DEĞİLDİR, bir regresyon kontrolüdür.
 
     python eval_varyasyon.py            # özet + hatalar
     python eval_varyasyon.py --md out/varyasyon_sonuc.md
@@ -58,7 +59,9 @@ def main() -> int:
             lines.append(f"- #{row['id']} \"{row['mesaj']}\"\n  - " + "\n  - ".join(wrong))
 
     n = len(rows)
-    out = [f"# Görülmemiş {n} mesaj: kural tabanlı sınıflandırma", "",
+    out = [f"# Varyasyon seti ({n} mesaj): kural tabanlı sınıflandırma", "",
+           "Not: ilk ölçüm (kurallar bu mesajları görmeden) docs/varyasyon_ilk_olcum.md içinde; "
+           "bu sonuç düzeltmelerden sonradır, genelleme kanıtı değildir.", "",
            f"Tamamen doğru: **{fully_right}/{n}**", "",
            "| Alan | Doğru |", "|---|---|"]
     out += [f"| {f} | {per_field[f]}/{n} |" for f in FIELDS]

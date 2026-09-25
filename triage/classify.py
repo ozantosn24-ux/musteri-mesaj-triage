@@ -14,7 +14,10 @@ from .text import fold
 
 # --- dil ---
 
-_EN_STOPWORDS = {"where", "my", "order", "is", "the", "hi", "has", "been", "week", "it"}
+_EN_STOPWORDS = {
+    "where", "my", "order", "is", "the", "hi", "has", "been", "week", "it",
+    "how", "what", "when", "does", "do", "you", "your", "are", "a", "to", "for", "and", "of", "can", "on",
+}
 _TR_CHARS = set("çğıöşüİı")
 
 
@@ -73,7 +76,7 @@ def extract_order_numbers(text: str) -> list[int]:
 # --- link ---
 
 _URL_PATTERN = re.compile(
-    r"https?://\S+|www\.\S+|\b[a-z0-9-]+\.(?:ly|com|net|org|co|io|me|tr)/\S+",
+    r"https?://\S+|www\.\S+|\b[a-z0-9-]+\.(?:ly|com|net|org|co|io|me|tr|tk|xyz|info|biz)\b(?:/\S*)?",
     re.IGNORECASE,
 )
 
@@ -117,8 +120,9 @@ def match_products(text: str, kb: KnowledgeBase) -> list[str]:
 
 _SAFETY_STEMS = [
     "yand", "kizar", "kasin", "kasint", "sisl", "sisti", "alerji", "reaksiyon",
-    "dokuntu", "tahris", "kabar", "yan etki",
-    "burn", "rash", "itch", "allerg", "swell", "irritat", "reaction",
+    "dokuntu", "tahris", "kabar", "yan etki", "soyul", "pul pul", "sivilce", "egzama",
+    "iltihap", "leke olus", "lekelen",
+    "burn", "rash", "itch", "allerg", "swell", "irritat", "reaction", "peeling", "hives", "blister",
 ]
 
 
@@ -131,18 +135,31 @@ def safety_intents(text: str) -> set[Intent]:
 
 # --- niyet anahtar kelimeleri (sınıflandırma) ---
 
-_PROMO_WORDS = ["takipci", "takip", "organik", "kazan", "tikla", "bedava", "followers"]
-_STRONG_SPAM_PHRASES = ["takipci kas"]
+_PROMO_WORDS = ["takipci", "takip", "organik", "kazan", "tikla", "bedava", "followers", "bonus", "hediye"]
+# Link olmadan da spam sayılan kalıplar (dolandırıcılık / çekiliş dili)
+_STRONG_SPAM_PHRASES = [
+    "takipci kas", "kazandiniz", "katina cikar", "kripto", "bitcoin",
+    "you won", "you have won", "free gift", "claim it", "click here",
+]
 _IADE_WORDS = ["iade", "ezik", "hasar", "kirik", "bozuk", "degisim", "return", "damaged", "broken"]
-_SIPARIS_STATUS_WORDS = ["nerede", "durum", "ne zaman", "gelir", "ulasmadi", "kargoya"]
-_KARGO_PHRASES = ["hangi kargo", "kargo firma", "kargo ucret", "kac gunde", "shipping company"]
+_SIPARIS_STATUS_WORDS = ["nerede", "nerde", "durum", "ne zaman", "gelir", "gelmedi", "ulasmadi", "kargoya"]
+# "sipariş" kelimesi geçmese de siparişe gönderme yapan ifadeler ("kargom gelmedi")
+_SIPARIS_REF_WORDS = ["siparis", "kargom", "paketim"]
+_KARGO_PHRASES = [
+    "hangi kargo", "kargo firma", "kargo ucret", "kac gunde", "kac gun", "shipping company",
+    "shipping take", "delivery take", "how long does shipping",
+]
 _INDIRIM_WORDS = ["indirim", "kod", "kupon", "promosyon", "discount", "coupon"]
 _URUN_BILGISI_WORDS = [
     "var mi", "icerik", "icerig", "alkol", "cilt", "kuru", "yagli", "karma",
     "hassas", "uygun", "kullanilir mi",
 ]
 _ML_PATTERN = re.compile(r"\d+\s*ml")
-_POLITIKA_WORDS = ["hayvan", "test edil", "cruelty", "vegan"]
+# "kodunuz var mı" gibi başka bir şeye bağlı "var mı" ürün sorusu değildir
+_BAGLI_VAR_MI = re.compile(r"(kod|kupon|indirim|kampanya)\w*\s+var mi")
+# Katalogda olmayan ama ürün sorusu olduğu belli ifadeler ("saç serumunuz var mı")
+_URUN_KATEGORI_WORDS = ["serum", "krem", "sampuan", "maske", "losyon", "sabun", "parfum"]
+_POLITIKA_WORDS = ["hayvan", "test edil", "cruelty", "vegan", "test on animals"]
 
 
 def classify(msg: Message, kb: KnowledgeBase) -> Extraction:
@@ -182,10 +199,11 @@ def classify(msg: Message, kb: KnowledgeBase) -> Extraction:
 
     # SIPARIS_DURUMU: sipariş no varsa, ya da "sipariş" + durum kelimesi, ya da EN "order"
     has_status_word = any(w in folded for w in _SIPARIS_STATUS_WORDS)
+    has_order_ref = any(w in folded for w in _SIPARIS_REF_WORDS)
     is_en_order = dil == "en" and "order" in folded
     if siparis_no:
         add(Intent.SIPARIS_DURUMU, f"kural: sipariş no {siparis_no[0]} ({_find_order_candidates(folded)[0][2]})")
-    elif ("siparis" in folded and has_status_word) or is_en_order:
+    elif (has_order_ref and has_status_word) or is_en_order:
         add(Intent.SIPARIS_DURUMU, "kural: sipariş durumu ifadesi")
 
     # KARGO_BILGISI: sipariş no YOKKEN genel kargo sorusu
@@ -195,7 +213,8 @@ def classify(msg: Message, kb: KnowledgeBase) -> Extraction:
 
     # FIYAT
     has_ucret = "ucret" in folded and "kargo ucret" not in folded
-    if "fiyat" in folded or "ne kadar" in folded or "kac tl" in folded or "price" in folded or has_ucret:
+    fiyat_kaliplari = ("fiyat", "ne kadar", "kac tl", "kac para", "price", "how much")
+    if any(k in folded for k in fiyat_kaliplari) or has_ucret:
         add(Intent.FIYAT, "kural: fiyat anahtar kelimesi")
 
     # INDIRIM
@@ -204,9 +223,13 @@ def classify(msg: Message, kb: KnowledgeBase) -> Extraction:
         add(Intent.INDIRIM, f"kural: indirim anahtar kelimesi '{indirim_hit}'")
 
     # URUN_BILGISI: ürün eşleşmesi ZORUNLU + destekleyici kelime/"<n> ml"
-    urun_kw_hit = next((w for w in _URUN_BILGISI_WORDS if w in folded), None)
+    urun_metni = _BAGLI_VAR_MI.sub("", folded)
+    urun_kw_hit = next((w for w in _URUN_BILGISI_WORDS if w in urun_metni), None)
     if urun and (urun_kw_hit or _ML_PATTERN.search(folded)):
         add(Intent.URUN_BILGISI, f"kural: ürün eşleşti + '{urun_kw_hit or 'ml miktarı'}'")
+    elif not urun and urun_kw_hit and any(k in folded for k in _URUN_KATEGORI_WORDS) and not safety_intents(msg.mesaj):
+        # Katalogda olmayan ürün soruluyor: karar katmanı "hangi ürün?" diye doğrulama ister
+        add(Intent.URUN_BILGISI, f"kural: katalog dışı ürün sorusu + '{urun_kw_hit}'")
 
     # POLITIKA
     politika_hit = next((w for w in _POLITIKA_WORDS if w in folded), None)

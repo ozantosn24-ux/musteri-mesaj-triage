@@ -1,0 +1,423 @@
+[
+  {
+    "id": 1,
+    "kanal": "whatsapp",
+    "musteri_id": 7,
+    "mesaj": "Merhaba, 12 numaralı siparişim nerede? Ne zaman kargoya verilir?",
+    "dil": "tr",
+    "intents": [
+      "siparis_durumu"
+    ],
+    "entities": {
+      "siparis_no": [
+        12
+      ],
+      "urun": [],
+      "url": []
+    },
+    "oncelik": "P1",
+    "aksiyon": "needs_verification",
+    "ekip": "destek",
+    "yanit_taslagi": "Merhaba,\n\nGüvenlik nedeniyle sipariş bilgilerini yalnızca sipariş sahibiyle paylaşabiliyoruz. Sipariş numarasını ve o siparişte kullanılan telefon/e-posta bilgisini teyit edebilir misiniz?\n\nİyi günler dileriz.",
+    "gerekceler": [
+      "kural: sipariş no 12 ('numaralı' kalıbı)",
+      "sipariş 12 bu müşteriye ait değil; bilgi paylaşılmadı"
+    ],
+    "kaynaklar": [],
+    "eksik_bilgiler": []
+  },
+  {
+    "id": 2,
+    "kanal": "instagram",
+    "musteri_id": 5,
+    "mesaj": "5 numaralı siparişimin durumu nedir acaba?",
+    "dil": "tr",
+    "intents": [
+      "siparis_durumu"
+    ],
+    "entities": {
+      "siparis_no": [
+        5
+      ],
+      "urun": [],
+      "url": []
+    },
+    "oncelik": "P2",
+    "aksiyon": "auto_reply",
+    "ekip": null,
+    "yanit_taslagi": "Merhaba,\n\n5 numaralı siparişiniz kargoda. Kargo firması: Yurtiçi Kargo. Takip numarası: YK3000000005. Kargoya veriliş tarihi: 24.09.2026. Tahmini varış tarihi: 26.09.2026.\n\nİyi günler dileriz.",
+    "gerekceler": [
+      "kural: sipariş no 5 ('numaralı' kalıbı)"
+    ],
+    "kaynaklar": [
+      "siparisler.json#5"
+    ],
+    "eksik_bilgiler": []
+  },
+  {
+    "id": 3,
+    "kanal": "whatsapp",
+    "musteri_id": 22,
+    "mesaj": "9999 numaralı siparişim hâlâ elime ulaşmadı, kontrol eder misiniz?",
+    "dil": "tr",
+    "intents": [
+      "siparis_durumu"
+    ],
+    "entities": {
+      "siparis_no": [
+        9999
+      ],
+      "urun": [],
+      "url": []
+    },
+    "oncelik": "P1",
+    "aksiyon": "needs_verification",
+    "ekip": "destek",
+    "yanit_taslagi": "Merhaba,\n\nGüvenlik nedeniyle sipariş bilgilerini yalnızca sipariş sahibiyle paylaşabiliyoruz. Sipariş numarasını ve o siparişte kullanılan telefon/e-posta bilgisini teyit edebilir misiniz?\n\nİyi günler dileriz.",
+    "gerekceler": [
+      "kural: sipariş no 9999 ('numaralı' kalıbı)",
+      "sipariş 9999 bulunamadı"
+    ],
+    "kaynaklar": [],
+    "eksik_bilgiler": []
+  },
+  {
+    "id": 4,
+    "kanal": "instagram",
+    "musteri_id": 14,
+    "mesaj": "Dün aldığım serumu kullandım, yüzüm yandı ve kızardı. Ne yapmalıyım?",
+    "dil": "tr",
+    "intents": [
+      "saglik_sikayeti"
+    ],
+    "entities": {
+      "siparis_no": [],
+      "urun": [],
+      "url": []
+    },
+    "oncelik": "P0",
+    "aksiyon": "human_escalation",
+    "ekip": "kalite",
+    "yanit_taslagi": "Merhaba,\n\nÜrünü kullanmayı hemen bırakmanızı rica ederiz. Şikâyetiniz sürer ya da artarsa lütfen bir sağlık profesyoneline başvurun. Kalite ekibimiz en kısa sürede sizinle iletişime geçecek. Bize şu bilgileri paylaşabilir misiniz: ürün adı, lot/seri numarası (kutunun altında), cildin fotoğrafı?\n\nİyi günler dileriz.",
+    "gerekceler": [
+      "kural: sağlık anahtar kelimesi 'yand'"
+    ],
+    "kaynaklar": [
+      "politikalar.json#saglik"
+    ],
+    "eksik_bilgiler": []
+  },
+  {
+    "id": 5,
+    "kanal": "whatsapp",
+    "musteri_id": 18,
+    "mesaj": "Kutu ezik geldi, ürünü iade etmek istiyorum.",
+    "dil": "tr",
+    "intents": [
+      "iade_hasar"
+    ],
+    "entities": {
+      "siparis_no": [],
+      "urun": [],
+      "url": []
+    },
+    "oncelik": "P1",
+    "aksiyon": "human_escalation",
+    "ekip": "iade",
+    "yanit_taslagi": "Merhaba,\n\nYaşadığınız sorun için üzgünüz. Hasarlı gelen ürünlerde fotoğraf ve sipariş numarasıyla ücretsiz değişim ya da iade yapılır. Ürünün fotoğrafını ve sipariş numaranızı paylaşabilir misiniz?\n\nİyi günler dileriz.",
+    "gerekceler": [
+      "kural: iade/hasar anahtar kelimesi 'iade'"
+    ],
+    "kaynaklar": [
+      "politikalar.json#iade"
+    ],
+    "eksik_bilgiler": []
+  },
+  {
+    "id": 6,
+    "kanal": "instagram",
+    "musteri_id": 3,
+    "mesaj": "Hi, where is my order #3? It has been a week.",
+    "dil": "en",
+    "intents": [
+      "siparis_durumu"
+    ],
+    "entities": {
+      "siparis_no": [
+        3
+      ],
+      "urun": [],
+      "url": []
+    },
+    "oncelik": "P2",
+    "aksiyon": "auto_reply",
+    "ekip": null,
+    "yanit_taslagi": "Hello,\n\nOrder #3 is on the way. Carrier: Yurtiçi Kargo. Tracking number: YK3000000003. Shipped on: 2026-09-24. Estimated delivery: 2026-09-26.\n\nBest regards.",
+    "gerekceler": [
+      "kural: sipariş no 3 ('order' kalıbı)"
+    ],
+    "kaynaklar": [
+      "siparisler.json#3"
+    ],
+    "eksik_bilgiler": []
+  },
+  {
+    "id": 7,
+    "kanal": "instagram",
+    "musteri_id": 27,
+    "mesaj": "Takipçi kasmak ister misiniz? 🔥 %100 organik takipçi: bit.ly/takip-artir",
+    "dil": "tr",
+    "intents": [
+      "spam"
+    ],
+    "entities": {
+      "siparis_no": [],
+      "urun": [],
+      "url": [
+        "bit.ly/takip-artir"
+      ]
+    },
+    "oncelik": "P3",
+    "aksiyon": "quarantine",
+    "ekip": null,
+    "yanit_taslagi": null,
+    "gerekceler": [
+      "kural: link + tanıtım kelimesi → spam"
+    ],
+    "kaynaklar": [],
+    "eksik_bilgiler": []
+  },
+  {
+    "id": 8,
+    "kanal": "whatsapp",
+    "musteri_id": 4,
+    "mesaj": "Güneş kreminin fiyatı ne kadar? Bir de 4 numaralı siparişim ne zaman gelir?",
+    "dil": "tr",
+    "intents": [
+      "fiyat",
+      "siparis_durumu"
+    ],
+    "entities": {
+      "siparis_no": [
+        4
+      ],
+      "urun": [
+        "gunes_kremi_spf50"
+      ],
+      "url": []
+    },
+    "oncelik": "P2",
+    "aksiyon": "auto_reply",
+    "ekip": null,
+    "yanit_taslagi": "Merhaba,\n\n4 numaralı siparişiniz hazırlanıyor. Tahmini kargoya veriliş tarihi: 26.09.2026. Güneş Kremi SPF50: 450 TL.\n\nİyi günler dileriz.",
+    "gerekceler": [
+      "kural: sipariş no 4 ('numaralı' kalıbı)",
+      "kural: fiyat anahtar kelimesi"
+    ],
+    "kaynaklar": [
+      "siparisler.json#4",
+      "urunler.json#gunes_kremi_spf50"
+    ],
+    "eksik_bilgiler": []
+  },
+  {
+    "id": 9,
+    "kanal": "whatsapp",
+    "musteri_id": 1,
+    "mesaj": "Retinol serumunuz var mı? Kuru ciltte kullanılır mı?",
+    "dil": "tr",
+    "intents": [
+      "urun_bilgisi"
+    ],
+    "entities": {
+      "siparis_no": [],
+      "urun": [
+        "retinol_serum"
+      ],
+      "url": []
+    },
+    "oncelik": "P3",
+    "aksiyon": "auto_reply",
+    "ekip": null,
+    "yanit_taslagi": "Merhaba,\n\nRetinol Serum stoklarımızda var. Retinol Serum, normal, kuru, karma cilt tipleri için uygundur.\n\nİyi günler dileriz.",
+    "gerekceler": [
+      "kural: ürün eşleşti + 'var mi'"
+    ],
+    "kaynaklar": [
+      "urunler.json#retinol_serum"
+    ],
+    "eksik_bilgiler": []
+  },
+  {
+    "id": 10,
+    "kanal": "instagram",
+    "musteri_id": 2,
+    "mesaj": "Nemlendirici krem ne kadar?",
+    "dil": "tr",
+    "intents": [
+      "fiyat"
+    ],
+    "entities": {
+      "siparis_no": [],
+      "urun": [
+        "nemlendirici_krem"
+      ],
+      "url": []
+    },
+    "oncelik": "P3",
+    "aksiyon": "auto_reply",
+    "ekip": null,
+    "yanit_taslagi": "Merhaba,\n\nNemlendirici Krem: 380 TL.\n\nİyi günler dileriz.",
+    "gerekceler": [
+      "kural: fiyat anahtar kelimesi"
+    ],
+    "kaynaklar": [
+      "urunler.json#nemlendirici_krem"
+    ],
+    "eksik_bilgiler": []
+  },
+  {
+    "id": 11,
+    "kanal": "whatsapp",
+    "musteri_id": 8,
+    "mesaj": "C vitamini serumu hangi cilt tipine uygundur?",
+    "dil": "tr",
+    "intents": [
+      "urun_bilgisi"
+    ],
+    "entities": {
+      "siparis_no": [],
+      "urun": [
+        "c_vitamini_serum"
+      ],
+      "url": []
+    },
+    "oncelik": "P3",
+    "aksiyon": "auto_reply",
+    "ekip": null,
+    "yanit_taslagi": "Merhaba,\n\nC Vitamini Serumu, normal, karma, yağlı cilt tipleri için uygundur.\n\nİyi günler dileriz.",
+    "gerekceler": [
+      "kural: ürün eşleşti + 'cilt'"
+    ],
+    "kaynaklar": [
+      "urunler.json#c_vitamini_serum"
+    ],
+    "eksik_bilgiler": []
+  },
+  {
+    "id": 12,
+    "kanal": "instagram",
+    "musteri_id": 6,
+    "mesaj": "Siparişler hangi kargo firmasıyla gönderiliyor?",
+    "dil": "tr",
+    "intents": [
+      "kargo_bilgisi"
+    ],
+    "entities": {
+      "siparis_no": [],
+      "urun": [],
+      "url": []
+    },
+    "oncelik": "P3",
+    "aksiyon": "auto_reply",
+    "ekip": null,
+    "yanit_taslagi": "Merhaba,\n\nSiparişleriniz Yurtiçi Kargo ile gönderiliyor. Teslimat süresi genellikle 1-3 iş günü.\n\nİyi günler dileriz.",
+    "gerekceler": [
+      "kural: kargo bilgisi kalıbı 'hangi kargo'"
+    ],
+    "kaynaklar": [
+      "politikalar.json#kargo"
+    ],
+    "eksik_bilgiler": []
+  },
+  {
+    "id": 13,
+    "kanal": "whatsapp",
+    "musteri_id": 9,
+    "mesaj": "Tonik 200 ml mi? İçeriğinde alkol var mı?",
+    "dil": "tr",
+    "intents": [
+      "urun_bilgisi"
+    ],
+    "entities": {
+      "siparis_no": [],
+      "urun": [
+        "tonik"
+      ],
+      "url": []
+    },
+    "oncelik": "P3",
+    "aksiyon": "human_escalation",
+    "ekip": "urun",
+    "yanit_taslagi": "Merhaba,\n\nTonik 200 ml'dir. Tonik ürününün alkol içeriği bilgisini ürün ekibimizden teyit edip size döneceğiz.\n\nİyi günler dileriz.",
+    "gerekceler": [
+      "kural: ürün eşleşti + 'var mi'"
+    ],
+    "kaynaklar": [],
+    "eksik_bilgiler": [
+      "urun:tonik:alkol_icerir"
+    ]
+  },
+  {
+    "id": 14,
+    "kanal": "instagram",
+    "musteri_id": 10,
+    "mesaj": "İndirim kodunuz var mı, fiyat listesi paylaşır mısınız?",
+    "dil": "tr",
+    "intents": [
+      "fiyat",
+      "indirim"
+    ],
+    "entities": {
+      "siparis_no": [],
+      "urun": [],
+      "url": []
+    },
+    "oncelik": "P3",
+    "aksiyon": "auto_reply",
+    "ekip": null,
+    "yanit_taslagi": "Merhaba,\n\nGüncel fiyat listemiz: Güneş Kremi SPF50: 450 TL; Retinol Serum: 650 TL; Nemlendirici Krem: 380 TL; C Vitamini Serumu: 590 TL; Tonik: 320 TL. Şu an aktif bir indirim kodumuz bulunmuyor.\n\nİyi günler dileriz.",
+    "gerekceler": [
+      "kural: fiyat anahtar kelimesi",
+      "kural: indirim anahtar kelimesi 'indirim'",
+      "fiyat listesi paylaşılabilir",
+      "aktif kod yok, kod uydurulmadı"
+    ],
+    "kaynaklar": [
+      "politikalar.json#fiyat_listesi",
+      "urunler.json#gunes_kremi_spf50",
+      "urunler.json#retinol_serum",
+      "urunler.json#nemlendirici_krem",
+      "urunler.json#c_vitamini_serum",
+      "urunler.json#tonik",
+      "politikalar.json#indirim"
+    ],
+    "eksik_bilgiler": []
+  },
+  {
+    "id": 15,
+    "kanal": "whatsapp",
+    "musteri_id": 11,
+    "mesaj": "Merhaba, ürünleriniz hayvanlar üzerinde test ediliyor mu?",
+    "dil": "tr",
+    "intents": [
+      "politika"
+    ],
+    "entities": {
+      "siparis_no": [],
+      "urun": [],
+      "url": []
+    },
+    "oncelik": "P3",
+    "aksiyon": "auto_reply",
+    "ekip": null,
+    "yanit_taslagi": "Merhaba,\n\nÜrünlerimiz ve hammaddelerimiz hayvanlar üzerinde test edilmemektedir.\n\nİyi günler dileriz.",
+    "gerekceler": [
+      "kural: politika anahtar kelimesi 'hayvan'"
+    ],
+    "kaynaklar": [
+      "politikalar.json#hayvan_testi"
+    ],
+    "eksik_bilgiler": []
+  }
+]
