@@ -174,8 +174,10 @@ düşer ve bu gerekçeye yazılır.
 İki şey her modda deterministik kalır: **sağlık kontrolü** ve **sipariş numarası çıkarımı.** LLM bir sağlık şikâyetini
 "spam" diye etiketlese bile sağlık kuralı onu ACİL olarak insana gönderir (testli).
 
-**Sınır:** bu makinede API anahtarı olmadığı için LLM yolu gerçek API'ye karşı koşturulmadı. Sahte bir istemciyle
-testli (istek şekli, şema, reddetme ve hata durumları, güvenlik katmanı), ama canlı model çıktısı repoda yok.
+**Tercih ve sınır:** bu teslimde LLM'i canlı bir API'ye bağlamamayı tercih ettim. Varsayılan yol bilinçli olarak
+anahtarsız: değerlendiren herkes tek komutla, hesap açmadan ve maliyetsiz çalıştırabilsin, her kararın gerekçesi de
+okunabilsin. LLM modu sahte bir istemciyle testli (istek şekli, şema, reddetme ve hata durumları, güvenlik katmanı);
+canlı model çıktısı repoda yok. Anahtar tanımlanınca `python run.py --llm` ile aynı akış LLM'le çalışır.
 
 ## Varsayımlar
 
@@ -199,7 +201,7 @@ testli (istek şekli, şema, reddetme ve hata durumları, güvenlik katmanı), a
 
 ## Bitmeyenler ve bilinen sınırlar
 
-- LLM modu canlı API'ye karşı denenmedi (anahtar yok).
+- LLM modu canlı API'ye bağlanmadı (bu teslimdeki tercih, yukarıda gerekçesiyle); canlı çıktısı ölçülmedi.
 - Kural tabanlı sınıflandırma yeni ifadelerde kırılgan (ilk ölçüm 10/20). Gerçek trafikte yeni ifadeler yeni açık
   demektir. LLM modu ya da gerçek mesajlardan kural ve örnek zenginleştirmesi gerekir.
 - Sağlık kelimeleri bilerek geniş tutuldu: "sivilce", "alerji", "yan etki var mı?" gibi yalnız soru soran mesajlar da
