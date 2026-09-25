@@ -1,6 +1,6 @@
 # Müşteri Mesajı Onay Kuyruğu
 
-_Üretim: 2026-09-25 14:44 · Veriler VARSAYIM etiketlidir (case-brief.md e-postaya eklenmemişti, sipariş/ürün/politika verisi örnek veridir)._
+_Üretim: 2026-09-25 14:48 · Veriler VARSAYIM etiketlidir (case-brief.md e-postaya eklenmemişti, sipariş/ürün/politika verisi örnek veridir)._
 
 ## Özet
 
@@ -9,7 +9,7 @@ _Üretim: 2026-09-25 14:44 · Veriler VARSAYIM etiketlidir (case-brief.md e-post
 - Doğrulama gerekli: **2**
 - Otomatik yanıt: **9**
 - Karantina: **1**
-- P0 (acil) sayısı: **1**
+- ACİL (sağlık şikâyeti) sayısı: **1**
 
 ## Bilgi tabanı boşlukları (varsayımsal tahmin)
 
@@ -19,7 +19,7 @@ Otomatik yanıt oranı: **%60 → %67** (varsayımsal tahmin; ilgili alanlar dol
 
 ## İnsana aktarıldı
 
-### #4 · instagram · müşteri 14 · P0 · kalite
+### #4 · ACİL · instagram · müşteri 14 · ekip: kalite
 
 > Dün aldığım serumu kullandım, yüzüm yandı ve kızardı. Ne yapmalıyım?
 
@@ -36,7 +36,7 @@ Otomatik yanıt oranı: **%60 → %67** (varsayımsal tahmin; ilgili alanlar dol
 
 Kaynaklar: politikalar.json#saglik
 
-### #5 · whatsapp · müşteri 18 · P1 · iade
+### #5 · YÜKSEK · whatsapp · müşteri 18 · ekip: iade
 
 > Kutu ezik geldi, ürünü iade etmek istiyorum.
 
@@ -53,7 +53,7 @@ Kaynaklar: politikalar.json#saglik
 
 Kaynaklar: politikalar.json#iade
 
-### #13 · whatsapp · müşteri 9 · P3 · urun
+### #13 · DÜŞÜK · whatsapp · müşteri 9 · ekip: urun
 
 > Tonik 200 ml mi? İçeriğinde alkol var mı?
 
@@ -70,7 +70,7 @@ Kaynaklar: politikalar.json#iade
 
 ## Doğrulama gerekli
 
-### #1 · whatsapp · müşteri 7 · P1 · destek
+### #1 · YÜKSEK · whatsapp · müşteri 7 · ekip: destek
 
 > Merhaba, 12 numaralı siparişim nerede? Ne zaman kargoya verilir?
 
@@ -86,7 +86,7 @@ Kaynaklar: politikalar.json#iade
 - kural: sipariş no 12 ('numaralı' kalıbı)
 - sipariş 12 bu müşteriye ait değil; bilgi paylaşılmadı
 
-### #3 · whatsapp · müşteri 22 · P1 · destek
+### #3 · YÜKSEK · whatsapp · müşteri 22 · ekip: destek
 
 > 9999 numaralı siparişim hâlâ elime ulaşmadı, kontrol eder misiniz?
 
@@ -104,7 +104,7 @@ Kaynaklar: politikalar.json#iade
 
 ## Otomatik yanıt
 
-### #2 · instagram · müşteri 5 · P2 · —
+### #2 · NORMAL · instagram · müşteri 5 · ekip: —
 
 > 5 numaralı siparişimin durumu nedir acaba?
 
@@ -121,7 +121,7 @@ Kaynaklar: politikalar.json#iade
 
 Kaynaklar: siparisler.json#5
 
-### #6 · instagram · müşteri 3 · P2 · —
+### #6 · NORMAL · instagram · müşteri 3 · ekip: —
 
 > Hi, where is my order #3? It has been a week.
 
@@ -138,7 +138,7 @@ Kaynaklar: siparisler.json#5
 
 Kaynaklar: siparisler.json#3
 
-### #8 · whatsapp · müşteri 4 · P2 · —
+### #8 · NORMAL · whatsapp · müşteri 4 · ekip: —
 
 > Güneş kreminin fiyatı ne kadar? Bir de 4 numaralı siparişim ne zaman gelir?
 
@@ -156,7 +156,7 @@ Kaynaklar: siparisler.json#3
 
 Kaynaklar: siparisler.json#4, urunler.json#gunes_kremi_spf50
 
-### #9 · whatsapp · müşteri 1 · P3 · —
+### #9 · DÜŞÜK · whatsapp · müşteri 1 · ekip: —
 
 > Retinol serumunuz var mı? Kuru ciltte kullanılır mı?
 
@@ -173,7 +173,7 @@ Kaynaklar: siparisler.json#4, urunler.json#gunes_kremi_spf50
 
 Kaynaklar: urunler.json#retinol_serum
 
-### #10 · instagram · müşteri 2 · P3 · —
+### #10 · DÜŞÜK · instagram · müşteri 2 · ekip: —
 
 > Nemlendirici krem ne kadar?
 
@@ -190,7 +190,7 @@ Kaynaklar: urunler.json#retinol_serum
 
 Kaynaklar: urunler.json#nemlendirici_krem
 
-### #11 · whatsapp · müşteri 8 · P3 · —
+### #11 · DÜŞÜK · whatsapp · müşteri 8 · ekip: —
 
 > C vitamini serumu hangi cilt tipine uygundur?
 
@@ -207,7 +207,7 @@ Kaynaklar: urunler.json#nemlendirici_krem
 
 Kaynaklar: urunler.json#c_vitamini_serum
 
-### #12 · instagram · müşteri 6 · P3 · —
+### #12 · DÜŞÜK · instagram · müşteri 6 · ekip: —
 
 > Siparişler hangi kargo firmasıyla gönderiliyor?
 
@@ -224,7 +224,7 @@ Kaynaklar: urunler.json#c_vitamini_serum
 
 Kaynaklar: politikalar.json#kargo
 
-### #14 · instagram · müşteri 10 · P3 · —
+### #14 · DÜŞÜK · instagram · müşteri 10 · ekip: —
 
 > İndirim kodunuz var mı, fiyat listesi paylaşır mısınız?
 
@@ -244,7 +244,7 @@ Kaynaklar: politikalar.json#kargo
 
 Kaynaklar: politikalar.json#fiyat_listesi, urunler.json#gunes_kremi_spf50, urunler.json#retinol_serum, urunler.json#nemlendirici_krem, urunler.json#c_vitamini_serum, urunler.json#tonik, politikalar.json#indirim
 
-### #15 · whatsapp · müşteri 11 · P3 · —
+### #15 · DÜŞÜK · whatsapp · müşteri 11 · ekip: —
 
 > Merhaba, ürünleriniz hayvanlar üzerinde test ediliyor mu?
 
@@ -263,7 +263,7 @@ Kaynaklar: politikalar.json#hayvan_testi
 
 ## Karantina
 
-### #7 · instagram · müşteri 27 · P3 · —
+### #7 · DÜŞÜK · instagram · müşteri 27 · ekip: —
 
 > Takipçi kasmak ister misiniz? 🔥 %100 organik takipçi: bit.ly/takip-artir
 

@@ -34,7 +34,7 @@ Python 3.10+ yeterli, çalıştırmak için ek paket gerekmez (yalnız standart 
 |---|---|---|
 | Otomatik yanıt | 9 | #2, 6, 8, 9, 10, 11, 12, 14, 15 |
 | Doğrulama gerekli | 2 | #1 (başkasının siparişi), #3 (olmayan sipariş) |
-| İnsana aktarıldı | 3 | #4 sağlık (P0, kalite), #5 iade, #13 bilinmeyen içerik |
+| İnsana aktarıldı | 3 | #4 sağlık (ACİL, kalite), #5 iade, #13 bilinmeyen içerik |
 | Karantina | 1 | #7 spam |
 
 Örnek taslak (#2):
@@ -76,12 +76,12 @@ Bir mesajda birden fazla niyet varsa en sert aksiyon ve en yüksek öncelik geç
 
 ### Öncelikler
 
-| Öncelik | Ne zaman |
+| Öncelik (kod) | Ne zaman |
 |---|---|
-| P0 | Sağlık şikâyeti. Hiçbir koşulda otomatik cevaplanmaz, spam işareti taşısa bile insan kuyruğundan düşmez |
-| P1 | İade/hasar, bulunamayan ya da başkasına ait sipariş |
-| P2 | Olağan sipariş sorusu |
-| P3 | Bilgi soruları, spam |
+| **ACİL** (P0) | Sağlık şikâyeti. Hiçbir koşulda otomatik cevaplanmaz, spam işareti taşısa bile insan kuyruğundan düşmez |
+| YÜKSEK (P1) | İade/hasar, bulunamayan ya da başkasına ait sipariş |
+| NORMAL (P2) | Olağan sipariş sorusu |
+| DÜŞÜK (P3) | Bilgi soruları, spam |
 
 ## Veride fark ettiğim tuzaklar
 
@@ -89,7 +89,7 @@ Bir mesajda birden fazla niyet varsa en sert aksiyon ve en yüksek öncelik geç
 |---|---|---|
 | 1 | 7 numaralı müşteri, 12 numaralı siparişi soruyor | 12 başka müşteriye ait. Sipariş bilgisi paylaşılmaz, sahiplik doğrulaması istenir |
 | 3 | 9999 numaralı sipariş | Kayıt yok. Durum uydurulmaz, sipariş no teyidi istenir |
-| 4 | Serumdan sonra yanma ve kızarıklık | P0, kalite ekibine gider. Tıbbi tavsiye yok; kullanımı bırakması, gerekirse sağlık profesyoneline başvurması söylenir, ürün adı + lot no + fotoğraf istenir |
+| 4 | Serumdan sonra yanma ve kızarıklık | ACİL, kalite ekibine gider. Tıbbi tavsiye yok; kullanımı bırakması, gerekirse sağlık profesyoneline başvurması söylenir, ürün adı + lot no + fotoğraf istenir |
 | 6 | İngilizce mesaj | Yanıt İngilizce |
 | 7 | Takipçi satışı + kısa link | Karantina, yanıt yok, link açılmaz |
 | 8 | Hem fiyat hem sipariş | İki soru da tek taslakta cevaplanır |
@@ -106,8 +106,8 @@ biri numaraları deneyerek hangi siparişlerin var olduğunu öğrenebilirdi. Ay
 
 ### Onay kuyruğu paneli (`out/panel.html`)
 
-Destek sorumlusunun sabah açacağı tek sayfa: özet kartları (otomatik yanıt oranı, insan gereken mesaj, P0 sayısı),
-kırmızı P0 bandı, önceliğe göre sıralı mesajlar, her birinde taslak, gerekçe ve kaynak. Tek HTML dosyası; JavaScript
+Destek sorumlusunun sabah açacağı tek sayfa: özet kartları (otomatik yanıt oranı, insan gereken mesaj, acil sayısı),
+kırmızı ACİL bandı (sağlık şikâyetleri listenin en başında ayrıca gösterilir), önceliğe göre sıralı mesajlar, her birinde taslak, gerekçe ve kaynak. Tek HTML dosyası; JavaScript
 ya da dış bağımlılık yok. Müşteri metni sayfaya kaçışlanarak yazılır (HTML enjeksiyonu testi var).
 
 ### Bilgi tabanı boşluk raporu
@@ -140,8 +140,8 @@ Türkçe karakter kullanmayan yazım, emoji, İngilizce, farklı ifadeler, links
 
 İkinci sayı artık görülmüş veri üzerinde, genelleme iddiası değil. Asıl bilgi ilk ölçümde: **yanlışların hepsi güvenli
 taraftaydı.** Hiçbir mesaj haksız yere otomatik cevaplanmadı; tanınmayan her şey insana gitti. Tek ciddi kaçırma, cildi
-soyulan bir müşterinin P0 yerine P3 almasıydı (yine insana gidiyordu ama acil işaretlenmiyordu); sağlık kelime listesi
-genişletildi. Bu iki özellik artık test: P0 beklenen mesaj P0'dan düşmez, beklenmeyen mesaj otomatik cevaplanmaz
+soyulan bir müşterinin ACİL yerine DÜŞÜK öncelik almasıydı (yine insana gidiyordu ama acil işaretlenmiyordu); sağlık kelime listesi
+genişletildi. Bu iki özellik artık test: ACİL beklenen mesaj ACİL'den düşmez, beklenmeyen mesaj otomatik cevaplanmaz
 (`tests/test_varyasyon.py`, mutasyonla sınandı).
 
 Kalan tek hata (#117, İngilizce kargo süresi sorusu) bilerek bırakıldı: kural tabanlı sınıflandırmanın sınırını
@@ -161,7 +161,7 @@ doğrulanır. Geçersiz ya da boş cevap, model reddi ya da herhangi bir hata ol
 düşer ve bu gerekçeye yazılır.
 
 İki şey her modda deterministik kalır: **sağlık kontrolü** ve **sipariş numarası çıkarımı.** LLM bir sağlık şikâyetini
-"spam" diye etiketlese bile sağlık kuralı onu P0 olarak insana gönderir (testli).
+"spam" diye etiketlese bile sağlık kuralı onu ACİL olarak insana gönderir (testli).
 
 **Sınır:** bu makinede API anahtarı olmadığı için LLM yolu gerçek API'ye karşı koşturulmadı. Sahte bir istemciyle
 testli (istek şekli, şema, reddetme ve hata durumları, güvenlik katmanı), ama canlı model çıktısı repoda yok.

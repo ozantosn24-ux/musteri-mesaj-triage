@@ -40,6 +40,26 @@ ACTION_LABELS_TR = {
     Action.QUARANTINE.value: "Karantina",
 }
 
+# Kodda P0-P3 kısaltmaları kalır; okuyan kişiye anlamı açık ad gösterilir.
+PRIORITY_LABELS_TR = {"P0": "ACİL", "P1": "YÜKSEK", "P2": "NORMAL", "P3": "DÜŞÜK"}
+
+INTENT_LABELS_TR = {
+    "siparis_durumu": "Sipariş durumu",
+    "iade_hasar": "İade / hasar",
+    "saglik_sikayeti": "Sağlık şikâyeti",
+    "urun_bilgisi": "Ürün bilgisi",
+    "fiyat": "Fiyat",
+    "indirim": "İndirim",
+    "kargo_bilgisi": "Kargo bilgisi",
+    "politika": "Politika",
+    "spam": "Spam",
+    "bilinmiyor": "Anlaşılamadı",
+}
+
+
+def _oncelik_label(kod: str) -> str:
+    return PRIORITY_LABELS_TR.get(kod, kod)
+
 
 def _val(x: Any) -> str:
     """Enum ya da düz string; ikisinde de karşılık gelen değeri döner (contract Result.* : str)."""
@@ -169,7 +189,7 @@ def _build_rapor_md(results: list[Result], gap: dict) -> str:
     for aksiyon in GROUP_ORDER:
         if aksiyon in by_aksiyon:
             lines.append(f"- {ACTION_LABELS_TR[aksiyon]}: **{by_aksiyon[aksiyon]}**")
-    lines.append(f"- P0 (acil) sayısı: **{p0_count}**")
+    lines.append(f"- ACİL (sağlık şikâyeti) sayısı: **{p0_count}**")
     lines.append("")
     lines.append("## Bilgi tabanı boşlukları (varsayımsal tahmin)")
     lines.append("")
@@ -191,7 +211,7 @@ def _build_rapor_md(results: list[Result], gap: dict) -> str:
         lines.append("")
         for r in items:
             ekip = r.ekip or "—"
-            lines.append(f"### #{r.id} · {r.kanal} · müşteri {r.musteri_id} · {r.oncelik} · {ekip}")
+            lines.append(f"### #{r.id} · {_oncelik_label(r.oncelik)} · {r.kanal} · müşteri {r.musteri_id} · ekip: {ekip}")
             lines.append("")
             lines.append(_blockquote(r.mesaj))
             lines.append("")
@@ -297,7 +317,7 @@ def _kpis_html(results: list[Result], gap: dict) -> str:
         (str(total), "Toplam mesaj"),
         (_fmt_pct(gap["mevcut_oran"]), "Otomatik yanıt oranı"),
         (str(verify_human), "Doğrulama / insan gerekli"),
-        (str(p0), "P0 (acil)"),
+        (str(p0), "ACİL (sağlık)"),
         (str(quarantine), "Karantina"),
     ]
     return "".join(f'<div class="kpi"><span class="n">{_e(n)}</span><span class="l">{_e(l)}</span></div>' for n, l in cards)
@@ -312,8 +332,8 @@ def _p0_banner_html(results: list[Result]) -> str:
         kisa = r.mesaj if len(r.mesaj) <= 80 else r.mesaj[:80] + "…"
         items.append(f"<li>#{_e(r.id)} — {_e(kisa)}</li>")
     return (
-        '<div class="banner"><strong>P0 — acil, sağlık ile ilgili '
-        f'{len(p0)} mesaj</strong><ul>{"".join(items)}</ul></div>'
+        '<div class="banner"><strong>ACİL: sağlık şikâyeti, '
+        f'{len(p0)} mesaj. Önce bunlar.</strong><ul>{"".join(items)}</ul></div>'
     )
 
 
@@ -337,10 +357,11 @@ def _gap_section_html(gap: dict) -> str:
 
 def _card_html(r: Result) -> str:
     oncelik = _e(r.oncelik)
+    oncelik_label = _e(_oncelik_label(r.oncelik))
     aksiyon_key = _val(r.aksiyon)
     aksiyon_label = _e(ACTION_LABELS_TR.get(aksiyon_key, aksiyon_key))
-    ekip = _e(r.ekip) if r.ekip else "—"
-    intents_html = "".join(f"<span class=\"chip\">{_e(i)}</span>" for i in r.intents)
+    ekip = f"ekip: {_e(r.ekip)}" if r.ekip else "—"
+    intents_html = "".join(f"<span class=\"chip\">{_e(INTENT_LABELS_TR.get(i, i))}</span>" for i in r.intents)
     mesaj_html = _e(r.mesaj).replace("\n", "<br>")
     if r.yanit_taslagi:
         draft_html = _e(r.yanit_taslagi).replace("\n", "<br>")
@@ -353,7 +374,7 @@ def _card_html(r: Result) -> str:
         details = f"<details><summary>Gerekçe ve kaynaklar</summary><ul>{gerekce_items}{kaynak_items}</ul></details>"
     return f"""<article class="card">
   <div class="card-head">
-    <span class="badge badge-{oncelik}">{oncelik}</span>
+    <span class="badge badge-{oncelik}" title="{oncelik}">{oncelik_label}</span>
     <span class="chip">{_e(r.kanal)}</span>
     <span class="chip">{aksiyon_label}</span>
     <span class="chip">{ekip}</span>
