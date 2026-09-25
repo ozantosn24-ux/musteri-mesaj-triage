@@ -179,7 +179,7 @@ testli (istek şekli, şema, reddetme ve hata durumları, güvenlik katmanı), a
 
 ## Varsayımlar
 
-- `case-brief.md` ulaşmadı; görev veriden çıkarıldı.
+- Ayrıntılı görev tanımı eklerde yoktu; görev mesajlardan çıkarıldı.
 - `data/siparisler.json`, `urunler.json`, `politikalar.json` kurgusal. Sipariş 12'nin başka müşteriye ait olması,
   9999'un olmaması ve tonikte alkol bilgisinin `null` olması **bilerek** tasarlandı, tuzakları sınamak için.
 - Sipariş sahipliği `musteri_id` eşleşmesiyle kontrol ediliyor. Gerçekte WhatsApp/Instagram kimliğinin müşteri
