@@ -11,12 +11,13 @@ Nurederm / LabelSkin uygulama görevi.
 
 ![Onay kuyruğu paneli](docs/panel.jpg)
 
-## Önce bir not: brief eksikti
+## Görevi nasıl tanımladım
 
-E-postada "tüm ayrıntılar case-brief.md içinde" yazıyordu ama ekte bu dosya yoktu. Ekteki md dosyası, e-postanın
-gönderim metniydi. Süre işlediği için görevi `mesajlar.json`'daki 15 mesajdan çıkararak tanımladım ve bu durumu teslim
-e-postasında da belirttim. Sipariş, ürün ve politika verisi verilmediği için bunları **kurgusal örnek veri** olarak ben
-oluşturdum; her dosyanın başında `_uyari` alanı var. Brief elime ulaşırsa kuralları ve veriyi ona göre uyarlarım.
+Elimdeki girdi `mesajlar.json`'daki 15 müşteri mesajıydı; ayrıntılı bir görev tanımı (`case-brief.md`) eklerde
+yoktu. Görevi bu mesajlardan çıkararak tanımladım: mesajlar bir destek kutusunu ve içindeki tipik tuzakları
+anlatıyor. Sipariş, ürün ve politika verisi verilmediği için bunları **kurgusal örnek veri** olarak ben oluşturdum;
+her dosyanın başında `_uyari` alanı var. Gerçek veri ya da farklı bir görev tanımı gelirse değişen yalnız `data/` ve
+kural listeleri olur, mimari aynı kalır.
 
 ## Hızlı başlangıç
 
