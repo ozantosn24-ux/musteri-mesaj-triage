@@ -1,0 +1,3 @@
+pytest>=7
+# Opsiyonel, yalnız `python run.py --llm` için:
+# anthropic

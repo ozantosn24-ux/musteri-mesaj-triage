@@ -1,0 +1,28 @@
+{
+  "_uyari": "VARSAYIM: case-brief.md e-postaya ekli gelmedi. Politika metinleri ÖRNEKTİR ve şirketin gerçek beyanı değildir; gerçek sistemde yalnız şirketin onayladığı metinler kullanılır.",
+  "kargo": {
+    "firma": "Yurtiçi Kargo",
+    "sure": "1-3 iş günü",
+    "sure_en": "1-3 business days"
+  },
+  "iade": {
+    "sure_gun": 14,
+    "hasarli_urun": "Hasarlı gelen ürünlerde fotoğraf ve sipariş numarasıyla ücretsiz değişim ya da iade yapılır."
+  },
+  "indirim": {
+    "aktif_kodlar": []
+  },
+  "fiyat_listesi": {
+    "paylasilabilir": true
+  },
+  "hayvan_testi": {
+    "metin_tr": "Ürünlerimiz ve hammaddelerimiz hayvanlar üzerinde test edilmemektedir.",
+    "metin_en": "Our products and raw materials are not tested on animals."
+  },
+  "saglik": {
+    "ekip": "kalite",
+    "istenecekler": ["ürün adı", "lot/seri numarası (kutunun altında)", "cildin fotoğrafı"],
+    "ilk_mesaj_tr": "Ürünü kullanmayı hemen bırakmanızı rica ederiz. Şikâyetiniz sürer ya da artarsa lütfen bir sağlık profesyoneline başvurun.",
+    "ilk_mesaj_en": "Please stop using the product right away. If the reaction continues or gets worse, please consult a healthcare professional."
+  }
+}

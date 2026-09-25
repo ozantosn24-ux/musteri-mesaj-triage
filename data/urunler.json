@@ -1,0 +1,10 @@
+{
+  "_uyari": "VARSAYIM: case-brief.md e-postaya ekli gelmedi. Ürünler, fiyatlar ve içerik alanları kurgusaldır; gerçek sistemde ürün kataloğundan okunur. null = bilinmiyor (olumsuz DEĞİL).",
+  "urunler": [
+    { "slug": "gunes_kremi_spf50", "ad": "Güneş Kremi SPF50",  "aliases": ["güneş kremi", "güneş koruyucu", "spf", "sunscreen"], "fiyat_tl": 450, "hacim_ml": 50,  "stokta": true, "cilt_tipleri": ["tüm cilt tipleri"],     "alkol_icerir": false },
+    { "slug": "retinol_serum",     "ad": "Retinol Serum",      "aliases": ["retinol serum", "retinol"],                          "fiyat_tl": 650, "hacim_ml": 30,  "stokta": true, "cilt_tipleri": ["normal", "kuru", "karma"], "alkol_icerir": false, "kullanim_notu": "Akşam kullanılır; gündüz güneş koruyucu ile birlikte önerilir." },
+    { "slug": "nemlendirici_krem", "ad": "Nemlendirici Krem",  "aliases": ["nemlendirici krem", "nemlendirici", "moisturizer"],  "fiyat_tl": 380, "hacim_ml": 50,  "stokta": true, "cilt_tipleri": ["tüm cilt tipleri"],     "alkol_icerir": false },
+    { "slug": "c_vitamini_serum",  "ad": "C Vitamini Serumu",  "aliases": ["c vitamini", "vitamin c", "c vit"],                  "fiyat_tl": 590, "hacim_ml": 30,  "stokta": true, "cilt_tipleri": ["normal", "karma", "yağlı"], "alkol_icerir": false },
+    { "slug": "tonik",             "ad": "Tonik",              "aliases": ["tonik", "toner", "tonic"],                          "fiyat_tl": 320, "hacim_ml": 200, "stokta": true, "cilt_tipleri": ["tüm cilt tipleri"],     "alkol_icerir": null }
+  ]
+}

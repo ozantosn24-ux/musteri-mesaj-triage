@@ -1,0 +1,17 @@
+[
+  { "id": 1,  "dil": "tr", "intents": ["siparis_durumu"],          "oncelik": "P1", "aksiyon": "needs_verification", "ekip": "destek", "neden": "12 var ama sahibi m21, mesajı yazan m7: durum sızdırılmaz" },
+  { "id": 2,  "dil": "tr", "intents": ["siparis_durumu"],          "oncelik": "P2", "aksiyon": "auto_reply",         "ekip": null,     "neden": "5, m5'e ait, kargoda" },
+  { "id": 3,  "dil": "tr", "intents": ["siparis_durumu"],          "oncelik": "P1", "aksiyon": "needs_verification", "ekip": "destek", "neden": "9999 yok: durum uydurulmaz" },
+  { "id": 4,  "dil": "tr", "intents": ["saglik_sikayeti"],         "oncelik": "P0", "aksiyon": "human_escalation",   "ekip": "kalite", "neden": "cilt reaksiyonu: tıbbi tavsiye yok, kalite ekibi, lot no" },
+  { "id": 5,  "dil": "tr", "intents": ["iade_hasar"],              "oncelik": "P1", "aksiyon": "human_escalation",   "ekip": "iade",   "neden": "hasarlı kutu: fotoğraf + sipariş no" },
+  { "id": 6,  "dil": "en", "intents": ["siparis_durumu"],          "oncelik": "P2", "aksiyon": "auto_reply",         "ekip": null,     "neden": "İngilizce, 3 m3'e ait, kargoda" },
+  { "id": 7,  "dil": "tr", "intents": ["spam"],                    "oncelik": "P3", "aksiyon": "quarantine",         "ekip": null,     "neden": "takipçi satışı + kısaltılmış link" },
+  { "id": 8,  "dil": "tr", "intents": ["fiyat", "siparis_durumu"], "oncelik": "P2", "aksiyon": "auto_reply",         "ekip": null,     "neden": "çoklu niyet: fiyat + 4 m4'e ait" },
+  { "id": 9,  "dil": "tr", "intents": ["urun_bilgisi"],            "oncelik": "P3", "aksiyon": "auto_reply",         "ekip": null,     "neden": "katalogda var, kuru cilt listede" },
+  { "id": 10, "dil": "tr", "intents": ["fiyat"],                   "oncelik": "P3", "aksiyon": "auto_reply",         "ekip": null,     "neden": "katalog fiyatı" },
+  { "id": 11, "dil": "tr", "intents": ["urun_bilgisi"],            "oncelik": "P3", "aksiyon": "auto_reply",         "ekip": null,     "neden": "katalog cilt tipleri" },
+  { "id": 12, "dil": "tr", "intents": ["kargo_bilgisi"],           "oncelik": "P3", "aksiyon": "auto_reply",         "ekip": null,     "neden": "kargo politikası" },
+  { "id": 13, "dil": "tr", "intents": ["urun_bilgisi"],            "oncelik": "P3", "aksiyon": "human_escalation",   "ekip": "urun",   "neden": "200 ml biliniyor, alkol null: devir; 200 sipariş no değil" },
+  { "id": 14, "dil": "tr", "intents": ["fiyat", "indirim"],        "oncelik": "P3", "aksiyon": "auto_reply",         "ekip": null,     "neden": "aktif_kodlar []: kod yok; fiyat listesi katalogdan" },
+  { "id": 15, "dil": "tr", "intents": ["politika"],                "oncelik": "P3", "aksiyon": "auto_reply",         "ekip": null,     "neden": "hayvan testi politika metni" }
+]

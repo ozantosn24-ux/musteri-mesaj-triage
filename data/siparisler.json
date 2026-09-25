@@ -1,0 +1,9 @@
+{
+  "_uyari": "VARSAYIM: case-brief.md e-postaya ekli gelmedi. Bu dosya kurgusal örnek veridir; gerçek sistemde sipariş API'si/ERP'den okunur.",
+  "siparisler": [
+    { "siparis_no": 3,  "musteri_id": 3,  "durum": "kargoda",       "siparis_tarihi": "2026-09-18", "kargo_firmasi": "Yurtiçi Kargo", "takip_no": "YK3000000003", "kargoya_verilis": "2026-09-24", "tahmini_teslim": "2026-09-26" },
+    { "siparis_no": 4,  "musteri_id": 4,  "durum": "hazirlaniyor",  "siparis_tarihi": "2026-09-24", "kargo_firmasi": null,            "takip_no": null,           "tahmini_kargo": "2026-09-26" },
+    { "siparis_no": 5,  "musteri_id": 5,  "durum": "kargoda",       "siparis_tarihi": "2026-09-22", "kargo_firmasi": "Yurtiçi Kargo", "takip_no": "YK3000000005", "kargoya_verilis": "2026-09-24", "tahmini_teslim": "2026-09-26" },
+    { "siparis_no": 12, "musteri_id": 21, "durum": "teslim_edildi", "siparis_tarihi": "2026-09-15", "kargo_firmasi": "Yurtiçi Kargo", "takip_no": "YK3000000012", "kargoya_verilis": "2026-09-16", "teslim_tarihi": "2026-09-18" }
+  ]
+}
